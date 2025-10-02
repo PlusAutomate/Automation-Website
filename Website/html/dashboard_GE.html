@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/x-icon" href="/img/logo.png">
+    <title>Painel - Inicial GE</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+</head>
+<body>
+    <!-- Topo -->
+    <header class="topbar">
+        <img src="/img/logo.png" alt="" class="logo-icon">
+        <div class="logo">+Automation</div>
+        
+        <div class="user-box" onclick="toggleUserMenu()">
+            <img src="/img/profile-user.png" alt="Usuário" class="user-icon">
+            <span class="username">Gustavo</span>
+            <span class="arrow">▼</span>
+            <div class="user-menu" id="userMenu">
+                <p><strong>Gustavo Pereira</strong></p>
+                <p class="email">gustavo@email.com</p>
+                <hr>
+                <button class="logout-btn">Sair</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Conteúdo -->
+    <main class="container">
+        <div class="left">
+            <h1>Bem-vindo ao Painel</h1>
+            <p>Acompanhe e gerencie suas requisições.</p>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Acompanhamento</h3>
+                    <p>Verifique o acompanhamento de suas requisições.</p>
+                    <a href="/html/operacoes_GE.html">
+                    <button>Acessar</button>
+                    </a>
+                </div>
+                <div class="card">
+                    <h3>Requisição</h3>
+                    <p>Preencha um formulário para abrir uma requisição de vaga.</p>
+                    <a href="https://www.pipefy.com/pt-br/">
+                    <button>Acessar</button>
+                    </a>
+                </div>
+                <div class="card">
+                    <h3>Dashboard</h3>
+                    <p>Acompanhe dados de sua operação.</p>
+                    <button>Acessar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right">
+            <img src="/img/icone_Index.jpg" alt="Mascote" class="robot">
+        </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+</body>
+</html>

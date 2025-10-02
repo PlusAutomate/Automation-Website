@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="/img/logo.png">
+    <title>Painel - Inicial RH</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/preloader.css">
+
+</head>
+<body class="hidden">
+    <div id="preloader">
+        <svg version="1.1" id="L4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" xml:space="preserve">
+            <circle cx="6" cy="50" r="6">
+                <animate attributeName="opacity" dur="90s" values="0;1;0" repeatCount="indefinite" begin="0.1" />
+            </circle>
+            <circle cx="26" cy="50" r="6">
+                <animate attributeName="opacity" dur="90s" values="0;1;0" repeatCount="indefinite" begin="0.2" />
+            </circle>
+            <circle cx="46" cy="50" r="6">
+                <animate attributeName="opacity" dur="90s" values="0;1;0" repeatCount="indefinite" begin="0.3" />
+            </circle>
+        </svg>
+    </div>
+
+    <header class="topbar">
+        <img src="/img/logo.png" alt="" class="logo-icon">
+        <div class="logo">+Automation</div>
+        
+        <div class="user-box" onclick="toggleUserMenu()">
+            <img src="/img/profile-user.png" alt="Usuário" class="user-icon">
+            <span class="username">Gustavo</span>
+            <span class="arrow">▼</span>
+            <div class="user-menu" id="userMenu">
+                <p><strong>Gustavo Pereira</strong></p>
+                <p class="email">gustavo@email.com</p>
+                <hr>
+                <a href="login.html">
+                    <button class="logout-btn">Sair</button>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="left">
+            <h1>Bem-vindo ao Painel</h1>
+            <p>Gerencie as vagas e curriculos.</p>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Operações</h3>
+                    <p>Verifique e gerencies suas vagas e curriculos.</p>
+                    <a href="operacoes_RH.html">
+                    <button>Acessar</button>
+                    </a>
+                </div>
+                <div class="card">
+                    <h3>Dashboard</h3>
+                    <p>Verifique seus graficos.</p>
+                    <button>Acessar</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="right">
+            <img src="/img/icone_Index.jpg" alt="Mascote" class="robot">
+        </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+    <script src="/js/preloader.js"></script>
+</body>
+</html>

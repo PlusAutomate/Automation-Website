@@ -1,0 +1,117 @@
+/* =========================================================================
+   topbar.css: Barra Superior e User Menu (CORRIGIDO)
+   ========================================================================= */
+
+.topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: black;
+    color: white;
+    padding: 0 20px;
+    height: 60px; 
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+}
+
+.logo {
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    font-size: 1.5em;
+    color: #ffffff;
+}
+
+/* CORREÇÃO DO ÍCONE: Adicionando todas as propriedades background */
+.logo::before {
+    content: '';
+    display: block; /* Essencial para que width/height funcionem */
+    background-image: url('/img/logo.png'); /* Caminho da sua imagem */
+    
+    /* Configurações da imagem */
+    background-size: contain; /* Ajusta a imagem dentro do elemento */
+    background-repeat: no-repeat;
+    background-position: center;
+    
+    /* Dimensões */
+    width: 60px; 
+    height: 60px;
+    margin-right: 5px;
+    
+    /* Opcional: Se seu logo.png for um ícone sem fundo, não precisa de border-radius */
+    border-radius: 0; 
+}
+
+/* As classes .logo-icon não são necessárias neste HTML, mas mantidas por segurança */
+.logo-icon {
+    height: 35px; 
+    border-radius: 4px;
+    margin-right: 10px;  
+}
+
+/* ------------------ User Box e Menu ------------------ */
+
+.user-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 5px 10px;
+    transition: background 0.2s;
+}
+.user-box:hover {
+    background: #1a1a1a;
+    border-radius: 4px;
+}
+.user-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    margin-right: 8px;
+    border: 2px solid white;
+}
+.user-menu {
+    display: none;
+    position: absolute;
+    top: 50px; 
+    right: 0;
+    background: white;
+    color: black;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    padding: 10px;
+    min-width: 220px;
+    z-index: 10;
+}
+.user-menu.show { display: block; }
+.user-info-header {
+    display: flex;
+    align-items: center;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
+.menu-profile-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+.user-menu p { margin: 0; }
+.user-menu .email { font-size: 0.85em; color: gray; }
+.logout-btn {
+    width: 100%;
+    background: #e74c3c;
+    border: none;
+    padding: 8px 12px;
+    color: white;
+    border-radius: 4px;
+    cursor: pointer;
+}
+.logout-btn:hover { background: #c0392b; }

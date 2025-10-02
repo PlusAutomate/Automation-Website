@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="icon" type="image/x-icon" href="/img/logo.png">
+  <title>Painel - Operações RH</title>
+
+  <link rel="stylesheet" href="/css/operacoes.css">
+  <link rel="stylesheet" href="/css/topbar.css">
+  <link rel="stylesheet" href="/css/sidebar.css">
+  <link rel="stylesheet" href="/css/cards.css">
+  <link rel="stylesheet" href="/css/preloader.css">
+</head>
+
+<body class="hidden">
+  <!-- ===================== PRELOADER ===================== -->
+  <div id="preloader">
+    <svg id="L4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <circle cx="6" cy="50" r="6">
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.1"/>
+      </circle>
+      <circle cx="26" cy="50" r="6">
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.2"/>
+      </circle>
+      <circle cx="46" cy="50" r="6">
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3"/>
+      </circle>
+    </svg>
+  </div>
+
+  <!-- ===================== TOPBAR ===================== -->
+  <header class="topbar">
+    <div class="logo-area">
+      <div class="logo">+Automation</div>
+    </div>
+
+    <div class="user-box" onclick="toggleUserMenu()">
+      <img src="/img/profile-user.png" alt="Usuário" class="user-icon">
+      <span class="username">Gustavo</span>
+      <span class="arrow">▼</span>
+
+      <div class="user-menu" id="userMenu">
+        <div class="user-info-header">
+          <img src="/img/profile-user.png" alt="Perfil" class="menu-profile-icon">
+          <div class="menu-text-info">
+            <p><strong>Gustavo Pereira</strong></p>
+            <p class="email">gustavo@email.com</p>
+          </div>
+        </div>
+        <hr>
+                <a href="login.html">
+                    <button class="logout-btn">Sair</button>
+                </a>
+      </div>
+    </div>
+  </header>
+
+  <div class="dashboard">
+    <aside class="sidebar">
+      <ul class="menu">
+        <li>
+          <button class="menu-item">Vagas</button>
+          <ul class="submenu">
+            <li><a href="#" onclick="loadContent('listarVagas')">Listar Vagas</a></li>
+            <li><a href="#" onclick="loadContent('aprovarVagas')">Aprovar Vagas</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="menu-item">Candidatos</button>
+          <ul class="submenu">
+            <li><a href="#" onclick="loadContent('triagem')">Triagem</a></li>
+            <li><a href="#" onclick="loadContent('uploadCurriculos')">Upload Rápido</a></li>
+          </ul>
+        </li>
+
+        <li>
+          <button class="menu-item">Banco de Talento</button>
+          <ul class="submenu">
+            <li><a href="#" onclick="loadContent('listaTalentos')">Listar Talentos</a></li>
+          </ul>
+        </li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <p>Operações RH v1.0</p>
+        <p>© +Automation</p>
+      </div>
+    </aside>
+
+    <main class="content" id="mainContent">
+      <h2>Bem-vindo às Operações</h2>
+      <p>Selecione uma opção no menu lateral para começar.</p>
+    </main>
+  </div>
+
+  <!-- ===================== MODAL ===================== -->
+  <div id="customModal" class="modal">
+    <div class="modal-content-wrapper">
+      <span class="close-button" onclick="fecharModalCustom()">×</span>
+      <div class="modal-content" id="modalContent"></div>
+    </div>
+  </div>
+
+  <script src="/js/preloader.js"></script>
+  <script src="/js/script_RH.js"></script>
+
+</body>
+</html>

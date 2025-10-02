@@ -1,0 +1,92 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body, html {
+    height: 100%;
+}
+
+.container {
+    display: flex;
+    height: 100vh;
+}
+
+/* Área da imagem */
+.image-area {
+    flex: 1;
+    height: 100vh;
+    background-color: #1a1a1a;
+    background-image: url('../img/fundo_login5.jpg'); /* Caminho corrigido */
+    background-size: cover;
+    background-position: center;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 60px;
+}
+
+.text {
+    max-width: 400px;
+}
+
+.text h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.text p {
+    font-size: 1.1rem;
+}
+
+/* Área de login */
+.login-area {
+    flex: 1;
+    background-color: white;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-area h2 {
+    margin-bottom: 10px;
+}
+
+.login-area p {
+    margin-bottom: 20px;
+    color: #555;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    padding: 12px;
+    background: #00c4cc;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #00e6ee;
+}
