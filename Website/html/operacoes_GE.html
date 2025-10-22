@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-      <link rel="icon" type="image/x-icon" href="../img/logo.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="../img/logo.png">
   <title>Painel - Operações GE</title>
 
   <link rel="stylesheet" href="../css/operacoes.css">
@@ -13,18 +14,19 @@
   <link rel="stylesheet" href="../css/preloader.css">
 
 </head>
+
 <body class="hidden">
   <!-- ===================== PRELOADER ===================== -->
   <div id="preloader">
     <svg id="L4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
       <circle cx="6" cy="50" r="6">
-        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.1"/>
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.1" />
       </circle>
       <circle cx="26" cy="50" r="6">
-        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.2"/>
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.2" />
       </circle>
       <circle cx="46" cy="50" r="6">
-        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3"/>
+        <animate attributeName="opacity" dur="1s" values="0;1;0" repeatCount="indefinite" begin="0.3" />
       </circle>
     </svg>
   </div>
@@ -37,37 +39,37 @@
 
     <div class="user-box" onclick="toggleUserMenu()">
       <img src="../img/profile-user.png" alt="Usuário" class="user-icon">
-      <span class="username">Gustavo</span>
+      <span class="username" id="title_username_usuario">Gustavo</span>
       <span class="arrow">▼</span>
 
       <div class="user-menu" id="userMenu">
         <div class="user-info-header">
           <img src="../img/profile-user.png" alt="Perfil" class="menu-profile-icon">
           <div class="menu-text-info">
-            <p><strong>Gustavo Pereira</strong></p>
-            <p class="email">gustavo@email.com</p>
+            <p id="title_username_usuario_strong"><strong>Gustavo Pereira</strong></p>
+            <p class="email_usuario" id="email_usuario_session">gustavo@email.com</p>
           </div>
         </div>
         <hr>
-                <a href="login.html">
-                    <button class="logout-btn">Sair</button>
-                </a>
+        <a href="login.html">
+          <button class="logout-btn">Sair</button>
+        </a>
       </div>
     </div>
   </header>
 
-        <div class="dashboard">
+  <div class="dashboard">
     <aside class="sidebar">
       <ul class="menu">
         <li>
           <button class="menu-item">Vagas</button>
           <ul class="submenu">
             <li><a href="#" onclick="loadContent('listarVagas')">Listar Vagas</a></li>
-            
+
           </ul>
         </li>
 
-          <li>
+        <li>
           <button class="menu-item">Curriculos</button>
           <ul class="submenu">
             <li><a href="#" onclick="loadContent('curriculos')">Curriculos</a></li>
@@ -81,10 +83,10 @@
           </ul>
         </li>
 
-      <div class="sidebar-footer">
-        <p>Operações RH v1.0</p>
-        <p>© +Automation</p>
-      </div>
+        <div class="sidebar-footer">
+          <p>Operações RH v1.0</p>
+          <p>© +Automation</p>
+        </div>
     </aside>
 
     <main class="content" id="mainContent">
@@ -105,4 +107,18 @@
   <script src="../js/script_GE.js"></script>
 
 </body>
+
 </html>
+
+<script>
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'))
+
+  if (usuario) {
+    document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
+    document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
+    document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
+  } else {
+    document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
+
+  }
+</script>
