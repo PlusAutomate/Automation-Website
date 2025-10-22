@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/x-icon" href="../img/logo.png">
+    <link rel="icon" type="image/x-icon" href="../img/logo.png">
     <title>Login</title>
     <link rel="stylesheet" href="../css/login.css">
 </head>
+
 <body>
     <div class="container">
-        
+
         <!-- Área da imagem e texto -->
         <div class="image-area">
             <div class="text">
-                <h2>Olá, seja bem-vindo a <b><h1 style="text-decoration: underline;">+Automation</h1></b></h2>
+                <h2>Olá, seja bem-vindo a <b>
+                        <h1 style="text-decoration: underline;">+Automation</h1>
+                    </b></h2>
                 <p>Gerencie suas vagas e curriculos com <b>Inovação</b> e <b>Automação!</b></p>
             </div>
         </div>
@@ -24,20 +28,107 @@
             <p>Informe seus dados para acessar nossa plataforma</p>
             <form>
                 <label for="email">E-mail</label>
-                 <input type="email" id="email" placeholder="Insira aqui seu e-mail" required>
+                <input type="email" id="email" placeholder="Insira aqui seu e-mail" required>
                 <label for="email">Senha</label>
                 <input type="password" id="senha" placeholder="Insira aqui sua senha" required>
- 
-            </form>
-        </div>
 
-                <a href="dashboard_RH.html">
-                <button type="submit">Continuar RH</button>
-                </a>
+            </form>
+            <div class="button_login">
+
+                <button type="submit" onclick="logarRH()">Login RH</button>
+
                 <!-- TA BUGANDO O LOGIN, CRIE BOTOES SEPARADOS APENAS TESTE-->
-                <a href="dashboard_GE.html">
-                <button type="submit">Continuar GE</button>
-                </a>
+
+                <button type="submit" onclick="logarGestor()">Login Gestor</button>
+
+            </div>
+        </div>
+    </div>
+    <div id="popup" class="popup">
+        <div class="popup-background">
+            <div class="popup-content">
+                <span class="close" onclick="closePopup()">&times;</span>
+                <img id="popup-icon" src="" alt="Icon">
+                <h2 id="popup-title" class="popup-title"></h2>
+                <p id="popup-message" class="popup-message"></p>
+            </div>
+        </div>
     </div>
 </body>
+
 </html>
+
+<script>
+    async function logarRH() {
+        const url = "http://localhost:5000/usuario/login_rh";
+
+        try {
+            let headers = new Headers();
+            headers.append('Content-Type', 'application/json');
+            headers.append('Accept', '*/*');
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("senha").value;
+            const resposta = await fetch(url, {
+                method: "POST",
+                headers: headers,
+                body: JSON.stringify({
+                    email: email,
+                    senha: password
+                })
+            });
+
+            if (resposta.ok) {
+                const respostaJson = await resposta.json();
+
+                // Guardar todos os dados do usuário no sessionStorage
+                sessionStorage.setItem('usuario', JSON.stringify(respostaJson));
+                sessionStorage.setItem('idUsuario', respostaJson.usuario.id_usuario);
+
+
+                showPopup('LOGIN FEITO COM SUCESSO!', 'Vamos preencher essas vagas!', 'success', () => {
+                    window.location.href = "../html/operacoes_RH.html";
+                });
+            } else if (resposta.status === 400) {
+                showPopup('ERRO NO LOGIN!', '(Campos de email e senha são obrigatórios)', 'error');
+            } else if (resposta.status === 401 || resposta.status === 204) {
+                showPopup('ERRO NO LOGIN!', '(Email ou senha incorretos)', 'error');
+            } else if (resposta.status === 403 || resposta.status === 500) {
+                showPopup('ERRO NO LOGIN!', '(Usuário não autorizado)', 'error');
+            }
+        } catch (erro) {
+            console.log("Erro: ", erro);
+            showPopup('ERRO NO LOGIN!', '(Email ou senha incorretos)', 'error');
+        }
+    }
+
+    function showPopup(title, message, type, callback) {
+        const popup = document.getElementById('popup');
+        const popupTitle = document.getElementById('popup-title');
+        const popupMessage = document.getElementById('popup-message');
+        const popupIcon = document.getElementById('popup-icon');
+        popupTitle.textContent = title;
+        popupMessage.textContent = message;
+
+        if (type === 'success') {
+            popupTitle.style.color = '#33D700';
+            popupIcon.src = '../img/sucesso.png';
+        } else if (type === 'error') {
+            popupTitle.style.color = '#EB3223';
+            popupIcon.src = '../img/erro.png';
+        }
+
+        popup.style.display = 'flex';
+
+
+        setTimeout(() => {
+            closePopup();
+            if (callback) {
+                callback();
+            }
+        }, 1250);
+    }
+
+    function closePopup() {
+        document.getElementById('popup').style.display = 'none';
+    }
+</script>
