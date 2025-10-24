@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <title>Painel - Inicial RH</title>
     <link rel="stylesheet" href="../css/dashboard.css">
     <link rel="stylesheet" href="../css/preloader.css">
+    <link rel="stylesheet" href="../css/topbar.css">
 
 </head>
+
 <body class="hidden">
     <div id="preloader">
         <svg version="1.1" id="L4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" xml:space="preserve">
@@ -25,16 +28,23 @@
     </div>
 
     <header class="topbar">
-        <img src="../img/logo.png" alt="" class="logo-icon">
-        <div class="logo">+Automation</div>
-        
+        <div class="logo-area">
+            <div class="logo">+Automation</div>
+        </div>
+
         <div class="user-box" onclick="toggleUserMenu()">
             <img src="../img/profile-user.png" alt="Usuário" class="user-icon">
-            <span class="username">Gustavo</span>
+            <span class="username" id="title_username_usuario">Gustavo</span>
             <span class="arrow">▼</span>
+
             <div class="user-menu" id="userMenu">
-                <p><strong>Gustavo Pereira</strong></p>
-                <p class="email">gustavo@email.com</p>
+                <div class="user-info-header">
+                    <img src="../img/profile-user.png" alt="Perfil" class="menu-profile-icon">
+                    <div class="menu-text-info">
+                        <p id="title_username_usuario_strong"><strong>Gustavo Pereira</strong></p>
+                        <p class="email_usuario" id="email_usuario_session">gustavo@email.com</p>
+                    </div>
+                </div>
                 <hr>
                 <a href="login.html">
                     <button class="logout-btn">Sair</button>
@@ -53,7 +63,7 @@
                     <h3>Operações</h3>
                     <p>Verifique e gerencies suas vagas e curriculos.</p>
                     <a href="operacoes_RH.html">
-                    <button>Acessar</button>
+                        <button>Acessar</button>
                     </a>
                 </div>
                 <div class="card">
@@ -69,7 +79,20 @@
         </div>
     </main>
 
-    <script src="../js/script.js"></script>
     <script src="../js/preloader.js"></script>
+    <script src="../js/script_RH.js"></script>
 </body>
+
 </html>
+<script>
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'))
+
+  if (usuario) {
+    document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
+    document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
+    document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
+  } else {
+    document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
+
+  }
+</script>
