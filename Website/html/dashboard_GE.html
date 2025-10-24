@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <link rel="icon" type="image/x-icon" href="../img/logo.png">
+    <link rel="icon" type="image/x-icon" href="../img/logo.png">
     <title>Painel - Inicial GE</title>
     <link rel="stylesheet" href="../css/dashboard.css">
+    <link rel="stylesheet" href="../css/topbar.css">
 </head>
+
 <body>
     <!-- Topo -->
     <header class="topbar">
-        <img src="../img/logo.png" alt="" class="logo-icon">
-        <div class="logo">+Automation</div>
-        
+        <div class="logo-area">
+            <div class="logo">+Automation</div>
+        </div>
+
         <div class="user-box" onclick="toggleUserMenu()">
             <img src="../img/profile-user.png" alt="Usuário" class="user-icon">
-            <span class="username">Gustavo</span>
+            <span class="username" id="title_username_usuario">Gustavo</span>
             <span class="arrow">▼</span>
+
             <div class="user-menu" id="userMenu">
-                <p><strong>Gustavo Pereira</strong></p>
-                <p class="email">gustavo@email.com</p>
+                <div class="user-info-header">
+                    <img src="../img/profile-user.png" alt="Perfil" class="menu-profile-icon">
+                    <div class="menu-text-info">
+                        <p id="title_username_usuario_strong"><strong>Gustavo Pereira</strong></p>
+                        <p class="email_usuario" id="email_usuario_session">gustavo@email.com</p>
+                    </div>
+                </div>
                 <hr>
-                <button class="logout-btn">Sair</button>
+                <a href="login.html">
+                    <button class="logout-btn">Sair</button>
+                </a>
             </div>
         </div>
     </header>
@@ -37,14 +49,14 @@
                     <h3>Acompanhamento</h3>
                     <p>Verifique o acompanhamento de suas requisições.</p>
                     <a href="operacoes_GE.html">
-                    <button>Acessar</button>
+                        <button>Acessar</button>
                     </a>
                 </div>
                 <div class="card">
                     <h3>Requisição</h3>
                     <p>Preencha um formulário para abrir uma requisição de vaga.</p>
                     <a href="https://www.pipefy.com/pt-br/">
-                    <button>Acessar</button>
+                        <button>Acessar</button>
                     </a>
                 </div>
                 <div class="card">
@@ -59,7 +71,21 @@
             <img src="../img/icone_Index.jpg" alt="Mascote" class="robot">
         </div>
     </main>
-
+    <script src="../js/preloader.js"></script>
     <script src="../js/script.js"></script>
+    <script src="../js/script_GE.js"></script>
 </body>
+
 </html>
+<script>
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'))
+
+  if (usuario) {
+    document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
+    document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
+    document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
+  } else {
+    document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
+
+  }
+</script>
