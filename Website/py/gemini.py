@@ -2,14 +2,14 @@
 # pip install flask google-genai flask-cors
 
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 from google import genai
 from google.genai.errors import APIError
-import os
 import json
 
 app = Flask(__name__)
-from flask_cors import CORS 
-CORS(app) 
+# Libera CORS para o frontend (localhost:5500)
+CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5500", "http://localhost:5500"]}})
 
 # --- CONFIGURAÇÃO DA API KEY DO GEMINI ---
 # CHAVE VIA https://aistudio.google.com/api-keys
@@ -85,4 +85,4 @@ def match_score_endpoint():
     return jsonify(resultado)
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
