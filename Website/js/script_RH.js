@@ -155,7 +155,7 @@ async function loadContent(page) {
   }
 
   try {
-    const resposta = await fetch("http://localhost:5000/curriculos");
+    const resposta = await fetch("http://localhost:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -257,8 +257,11 @@ async function loadContent(page) {
           <input type="text" id="searchCurriculos" placeholder="Buscar Candidato/Vaga..." onkeyup="filterCards('triagemCardGrid','searchCurriculos')">
           <select id="filterStatusCurriculo" onchange="filterCards('triagemCardGrid','filterStatusCurriculo', 'data-status')">
             <option value="">Todos</option>
-            <option value="Novo">Novo (Para Triar)</option>
-            <option value="Em Contato">Em Contato (Ativo)</option>
+            <option value="Novo">Novo</option>
+            <option value="Entrevista">Entrevista</option>
+            <option value="Triagem">Triagem</option>
+            <option value="Rejeitado">Rejeitado</option>
+            <option value="Contratado">Contratado</option>
           </select>
         </div>
 
