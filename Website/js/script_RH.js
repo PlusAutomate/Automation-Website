@@ -831,7 +831,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
     // A URL do seu servidor Python (Flask)
-    const apiURL = 'http://127.0.0.1:5000/api/match-score'; 
+    const apiURL = 'http://127.0.0.1:5001/api/match-score'; 
     
     try {
         const response = await fetch(apiURL, {
@@ -862,7 +862,7 @@ async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
         console.error("Erro ao buscar Match Score da IA:", error);
         return {
             matchScore: 'N/A', // Mude para 'N/A' para indicar que não rodou
-            analiseIA: `Falha na conexão com o servidor de IA (Verifique se o 'app.py' está rodando na porta 5000). Erro: ${error.message}`,
+            analiseIA: `Falha na conexão com o servidor de IA (Verifique se o 'gemini.py' está rodando na porta 5000). Erro: ${error.message}`,
         };
     }
 }
