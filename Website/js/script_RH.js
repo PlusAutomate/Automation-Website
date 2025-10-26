@@ -815,7 +815,6 @@ function deletarTalento(id) {
 // INICIALIZAÇÃO DA PÁGINA (EXECUTA NO CARREGAMENTO)
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Inicializa menu/submenu
   document.querySelectorAll(".menu-item").forEach(btn => {
     btn.addEventListener("click", () => {
       document.querySelectorAll(".submenu.open").forEach(s => {
@@ -824,7 +823,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const submenu = btn.nextElementSibling;
       submenu.classList.toggle("open");
     });
+  });
 });
+
+
 
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
