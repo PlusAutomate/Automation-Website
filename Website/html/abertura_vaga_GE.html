@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Abrir Vaga - Gestão</title>
+  <link rel="stylesheet" href="/Website/css/forms.css" />
+</head>
+<body>
+  <div class="container-gestor">
+    <header>
+      <h1>Abrir Nova Vaga</h1>
+      <p>Preencha os dados abaixo para solicitar a abertura de uma vaga para o RH.</p>
+    </header>
+
+    <form id="formVaga" class="form-gestor">
+      <!-- título -->
+      <div class="form-group">
+        <label for="tituloVaga">Título da Vaga</label>
+        <input type="text" id="tituloVaga" required />
+      </div>
+
+      <!-- departamento -->
+      <div class="form-group">
+        <label for="departamentoVaga">Departamento / Time</label>
+        <select id="departamentoVaga" required>
+          <option value="">Carregando...</option>
+        </select>
+      </div>
+
+      <!-- localizacao -->
+      <div class="form-group">
+        <label for="localizacaoVaga">Regime / Localização</label>
+        <select id="localizacaoVaga" required>
+          <option value="">Selecione</option>
+          <option value="Remoto">Remoto</option>
+          <option value="Presencial">Presencial</option>
+          <option value="Híbrido">Híbrido</option>
+        </select>
+      </div>
+
+      <!-- cidade -->
+      <div class="form-group">
+        <label for="cidadeVaga">Cidade / UF (se presencial/híbrido)</label>
+        <input type="text" id="cidadeVaga" placeholder="Ex: São Paulo - SP" />
+      </div>
+
+      <!-- tipo_contratacao -->
+      <div class="form-group">
+        <label for="tipoVaga">Tipo de Contratação</label>
+        <select id="tipoVaga" required>
+          <option value="">Selecione</option>
+          <option value="CLT">CLT</option>
+          <option value="PJ">PJ</option>
+          <option value="Estágio">Estágio</option>
+          <option value="Temporário">Temporário</option>
+        </select>
+      </div>
+
+      <!-- nivel_vaga -->
+      <div class="form-group">
+        <label for="nivelVaga">Nível da Vaga</label>
+        <select id="nivelVaga" required>
+          <option value="">Selecione</option>
+          <option value="Junior">Junior</option>
+          <option value="Pleno">Pleno</option>
+          <option value="Senior">Senior</option>
+          <option value="Lead">Lead</option>
+          <option value="Manager">Manager</option>
+        </select>
+      </div>
+
+      <!-- motivo -->
+      <div class="form-group">
+        <label for="motivoVaga">Motivo da Abertura</label>
+        <select id="motivoVaga" required>
+          <option value="">Selecione</option>
+          <option value="Substituição">Substituição</option>
+          <option value="Crescimento">Crescimento</option>
+          <option value="Projeto Temporário">Projeto Temporário</option>
+          <option value="Reestruturação">Reestruturação</option>
+        </select>
+      </div>
+
+      <!-- numero_vagas -->
+      <div class="form-group">
+        <label for="numVagas">Número de Vagas</label>
+        <input type="number" id="numVagas" min="1" value="1" required />
+      </div>
+
+      <!-- urgencia -->
+      <div class="form-group">
+        <label for="urgenciaVaga">Urgência</label>
+        <select id="urgenciaVaga" required>
+          <option value="">Selecione</option>
+          <option value="Normal">Normal</option>
+          <option value="Alta">Alta</option>
+          <option value="Crítica">Crítica</option>
+        </select>
+      </div>
+
+      <!-- projeto -->
+      <div class="form-group full-width">
+        <label for="projetoVaga">Projeto / Squad (opcional)</label>
+        <input type="text" id="projetoVaga" placeholder="Ex: Portal do Cliente" />
+      </div>
+
+      <!-- prazo -->
+      <div class="form-group">
+        <label for="prazoVaga">Prazo Estimado (Deadline)</label>
+        <input type="date" id="prazoVaga" />
+      </div>
+
+      <!-- justificativa -->
+      <div class="form-group full-width">
+        <label for="justificativaVaga">Justificativa (Resumo Técnico)</label>
+        <textarea id="justificativaVaga" rows="3" placeholder="Explique a necessidade..." required></textarea>
+      </div>
+
+      <!-- skills -->
+      <div class="form-group full-width">
+        <label for="skillsVaga">Skills Necessárias</label>
+        <input type="text" id="skillsVaga" placeholder="Ex: React, Node.js, SQL" />
+      </div>
+
+      <div class="actions">
+        <a href="./dashboard_GE.html">
+            <button type="submit" class="btn-submit">Enviar Solicitação</button>
+        </a>
+        
+        <button type="button" class="btn-reset" onclick="resetFormVaga()">Limpar</button>
+        <a href="./dashboard_GE.html">
+            <button type="button" class="btn-cancel">Cancelar</button>
+        </a>
+        
+      </div>
+    </form>
+  </div>
+
+  <script src="/Website/js/script_GE_VAGA.js"></script>
+</body>
+</html>
