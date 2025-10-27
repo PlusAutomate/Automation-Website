@@ -1,0 +1,39 @@
+/* Ajustes leves específicos do painel do Gestor */
+.grafico-wrapper {
+  padding: 18px;
+}
+
+.kpi-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+  margin: 12px 0 16px 0;
+}
+@media (max-width: 900px) {
+  .kpi-grid { grid-template-columns: 1fr; }
+}
+
+.chart-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.06);
+  padding: 16px;
+  min-height: 380px;
+}
+
+/* Ativação visual do item selecionado no submenu */
+.submenu li a.active-submenu {
+  background: #e8f9fb;
+  color: #00a2ff !important;
+  border-left: 3px solid #00c4cc;
+}
+
+/* Título e descrição */
+#graficoContent h2 {
+  margin: 6px 0 0 0;
+  font-weight: 800;
+}
+#graficoContent p {
+  color: #555;
+  margin: 6px 0 14px 0;
+}

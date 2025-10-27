@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel - Gráficos Gestor</title>
+    <link rel="icon" type="image/x-icon" href="../img/logo.png">
+
+    <link rel="stylesheet" href="../css/topbar.css">
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/operacoes.css">
+    <link rel="stylesheet" href="../css/cards.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- ===================== TOPBAR ===================== -->
+    <header class="topbar">
+        <div class="logo-area">
+            <div class="logo">+Automation</div>
+        </div>
+        <div class="user-box" onclick="toggleUserMenu()">
+            <img src="../img/profile-user.png" alt="Usuário" class="user-icon">
+            <span class="username" id="title_username_usuario">Carregando...</span>
+            <span class="arrow">▼</span>
+
+            <div class="user-menu" id="userMenu">
+                <div class="user-info-header">
+                    <img src="../img/profile-user.png" class="menu-profile-icon">
+                    <div class="menu-text-info">
+                        <p id="title_username_usuario_strong"><strong>Usuário</strong></p>
+                        <p class="email_usuario" id="email_usuario_session">email@empresa.com</p>
+                    </div>
+                </div>
+                <hr>
+                <a href="login.html">
+                    <button class="logout-btn">Sair</button>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div class="dashboard">
+        <!-- ===================== SIDEBAR ===================== -->
+        <aside class="sidebar">
+            <ul class="menu">
+                <li>
+                    <button class="menu-item active">Métricas Gestor</button>
+                    <ul class="submenu open">
+                        <li><a href="#" onclick="loadGrafico('statusVagas')" class="active-submenu">Status das Vagas</a></li>
+                        <li><a href="#" onclick="loadGrafico('slaContratacao')">SLA de Contratação</a></li>
+                        <li><a href="#" onclick="loadGrafico('leadtimeDepto')">Lead Time por Departamento</a></li>
+                        <li><a href="#" onclick="loadGrafico('urgenciaCriticas')">Urgências (Críticas vs Outras)</a></li>
+                        <li><a href="#" onclick="loadGrafico('fechamentosMes')">Fechamentos por Mês</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <p>Gráficos Gestor v1.0</p>
+                <p>© +Automation</p>
+            </div>
+        </aside>
+
+        <!-- ===================== CONTEÚDO ===================== -->
+        <main class="content" id="graficoContent">
+            <h2>Status das Vagas</h2>
+            <p>Visualize a distribuição geral das vagas e seus status na empresa.</p>
+
+            <!-- espaço onde os cards + gráfico serão inseridos via JS -->
+            <div id="kpiContainer" class="card-grid" style="margin-top:20px;"></div>
+
+            <div style="margin-top:30px;">
+                <canvas id="graficoCanvas"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script>
+    function toggleUserMenu() {
+        document.getElementById("userMenu").classList.toggle("show");
+    }
+    </script>
+
+    <script src="../js/script_GE_GRAFICO.js"></script>
+
+</body>
+</html>
