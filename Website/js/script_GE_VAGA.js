@@ -9,7 +9,7 @@ async function carregarDepartamentos() {
     sel.innerHTML = `<option value="">Carregando...</option>`;
     const resp = await fetch(`${API_BASE}/departamentos`);
     const deps = await resp.json();
-    sel.innerHTML = `<option value="">Selecione</option>` + deps.map(d => `<option value="${d.id}">${d.nome}</option>`).join("");
+    sel.innerHTML = `<option value="">Selecione</option>` + deps.map(d => `<option value="${d.id_departamento}">${d.nome}</option>`).join("");
   } catch (e) {
     console.error(e);
     document.getElementById("departamentoVaga").innerHTML = `<option value="">Erro ao carregar</option>`;
@@ -44,11 +44,53 @@ function coletarPayloadVaga() {
   };
 }
 
+async function criar_vaga() {
+  // Monta o objeto com os dados do formulário
+  const vaga = {
+    titulo: document.getElementById("tituloVaga").value.trim(),
+    descricao: document.getElementById("justificativaVaga").value.trim(),
+    status: "Em Análise",
+    id_usuario: 1, // TODO: ajustar para o ID real do gestor logado
+    id_departamento: parseInt(document.getElementById("departamentoVaga").value),
+    localizacao: document.getElementById("localizacaoVaga").value,
+    tipo_contratacao: document.getElementById("tipoVaga").value,
+    nivel_vaga: document.getElementById("nivelVaga").value,
+    motivo: document.getElementById("motivoVaga").value,
+    numero_vagas: parseInt(document.getElementById("numVagas").value),
+    urgencia: document.getElementById("urgenciaVaga").value,
+    projeto: document.getElementById("projetoVaga").value.trim() || null,
+    prazo: document.getElementById("prazoVaga").value || null,
+    skills: document.getElementById("skillsVaga").value.trim() || null
+  };
+
+  try {
+    const resposta = await fetch("http://localhost:5000/vagas", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(vaga)
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.text();
+      throw new Error(`Erro ao criar vaga: ${erro}`);
+    }
+
+    const dados = await resposta.json();
+    alert("✅ " + dados.mensagem);
+
+  } catch (erro) {
+    console.error(erro);
+    alert("❌ Ocorreu um erro ao enviar a solicitação. Verifique os dados e tente novamente.");
+  }
+}
+
 async function enviarVagaAPI(payload) {
   // NÃO altero backend; apenas espelho a chamada
   const resp = await fetch(`${API_BASE}/vagas`, {
     method: "POST",
-    headers: {"Content-Type": "application/json"},
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
   if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);
