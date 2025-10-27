@@ -528,38 +528,120 @@ function confirmarAprovacaoComDetalhes() {
   loadContent("aprovarVagas");
 }
 
-function verDetalhesVagaGestor(id_vaga) {
-  const v = vagas.find(x => x.id_vaga === id_vaga);
-  if (!v) return console.error("Vaga não encontrada:", id_vaga);
+async function verDetalhesVagaGestor(id_vaga) {
+  try {
+    // Busca os dados da vaga direto do backend
+    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar detalhes da vaga");
 
-  const html = `
-  <div class="crud-container">
-    <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar</a> > Especificações do Gestor</div>
-    <h2>Especificações da Vaga (${v.titulo})</h2>
-    <div class="detail-form-grid">
-      <p class="descricao" style="color:red;">Para editar campo, entrar em contato com o gestor</p>
-      <div class="field-group"><label class="field-label">Gestor Requisitante</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Status Atual</label><input class="field-value read-only" disabled></div>
-      <div class="field-group full-width"><label class="field-label">Requisitos Técnicos</label><textarea class="field-value read-only" rows="3" disabled></textarea></div>
-      <div class="field-group full-width"><label class="field-label">Descrição Resumida</label><textarea class="field-value read-only" rows="4" disabled></textarea></div>
-      <div class="field-group"><label class="field-label">Título</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Departamento</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Localização</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Cidade</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Tipo de Contratação</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Nível</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Motivo</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Nº Vagas</label><input type="number" class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Urgência</label><input class="field-value read-only" disabled></div>
-      <div class="field-group"><label class="field-label">Prazo</label><input type="date" class="field-value read-only" disabled></div>
-      <div class="field-group full-width"><label class="field-label">Skills</label><textarea class="field-value read-only" rows="3" disabled></textarea></div>
-      <div class="field-group full-width"><label class="field-label">Justificativa</label><textarea class="field-value read-only" rows="4" disabled></textarea></div>
-    </div>
-    <div style="margin-top:20px;"><button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar</button></div>
-  </div>`;
+    const v = await resposta.json();
 
-  document.getElementById("mainContent").innerHTML = html;
+    const html = `
+      <div class="crud-container">
+        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar</a> > Especificações do Gestor</div>
+        <h2>Especificações da Vaga (${v.titulo})</h2>
+        <div class="detail-form-grid">
+          <p class="descricao" style="color:red;">Para editar campo, entrar em contato com o gestor</p>
+
+          <div class="field-group">
+            <label class="field-label">Gestor Requisitante</label>
+            <input class="field-value read-only" value="${v.id_usuario ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Status Atual</label>
+            <input class="field-value read-only" value="${v.status ?? ''}" disabled>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Requisitos Técnicos</label>
+            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Descrição Resumida</label>
+            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Título</label>
+            <input class="field-value read-only" value="${v.titulo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Departamento</label>
+            <input class="field-value read-only" value="${v.departamento_nome ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Localização</label>
+            <input class="field-value read-only" value="${v.localizacao ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Cidade</label>
+            <input class="field-value read-only" value="${v.cidade ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Tipo de Contratação</label>
+            <input class="field-value read-only" value="${v.tipo_contratacao ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nível</label>
+            <input class="field-value read-only" value="${v.nivel_vaga ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Motivo</label>
+            <input class="field-value read-only" value="${v.motivo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nº Vagas</label>
+            <input type="number" class="field-value read-only" value="${v.numero_vagas ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Urgência</label>
+            <input class="field-value read-only" value="${v.urgencia ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Prazo</label>
+            <input type="date" class="field-value read-only" value="${v.prazo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Skills</label>
+            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Justificativa</label>
+            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar</button>
+        </div>
+      </div>`;
+
+    document.getElementById("mainContent").innerHTML = html;
+
+  } catch (erro) {
+    console.error("Erro ao carregar detalhes da vaga:", erro);
+    document.getElementById("mainContent").innerHTML = `
+      <div class="crud-container">
+        <h2>Erro ao carregar detalhes</h2>
+        <p>${erro.message}</p>
+        <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar</button>
+      </div>`;
+  }
 }
+
 
 
 function editarDetalhesVagaRH(id_vaga) {
