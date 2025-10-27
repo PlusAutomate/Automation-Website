@@ -1,122 +1,157 @@
-let vagas = [
-    { id: 1, titulo: "Dev Frontend", status: "Aberta", descricao: "Atuação com React, SPA, REST.", gestor: "Maria", salarioMax: "R$ 8.000", beneficios: "VT, VR (R$ 40), Plano Saúde", responsavelRS: "Gustavo (RH)", requisitos: "React 3 anos, Node.js, Inglês Avançado" },
-    { id: 2, titulo: "Analista RH", status: "Em análise", descricao: "Pipeline de recrutamento e seleção.", gestor: "João", salarioMax: "N/A", beneficios: "N/A", responsavelRS: "N/A", requisitos: "Experiência em triagem, Conhecimento CLT" },
-    { id: 3, titulo: "Designer UI/UX", status: "Fechada", descricao: "Pesquisa, prototipação e UI kits.", gestor: "Ana", salarioMax: "R$ 6.000", beneficios: "VT, VR (R$ 35)", responsavelRS: "Júlia (RH)", requisitos: "Figma, Adobe XD, Portfólio" }
-];
+let vagas = [];
+let id_usuario = sessionStorage.getItem('idUsuario')
+
+
+async function carregarVagasGestor() {
+  try {
+    const resposta = await fetch(`http://localhost:5000/vagas/gestor/${id_usuario}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar vagas");
+    vagas = await resposta.json();
+    console.log("Vagas carregadas:", vagas);
+    // aqui você pode chamar funções que dependem das vagas
+  } catch (err) {
+    console.error(err);
+  }
+}
 
 let curriculos = [
-    { id: 1, nome: "Maria Silva", vaga: "Dev Frontend", status: "Contratado", email: "maria@email.com", telefone: "(11) 98765-4321", cvUrl: "link_cv_maria.pdf", cvDetalhe: {skills: ["React", "Node.js", "JavaScript", "UX/UI"], analise: "Maria possui forte experiência com React e Node.js. (CONTRATADA, 01/09)"}},
-    { id: 2, nome: "João Souza", vaga: "Analista RH", status: "Entrevista Técnica", email: "joao@email.com", telefone: "(11) 99999-8888", cvUrl: "link_cv_joao.pdf", cvDetalhe: {skills: ["Recrutamento", "Onboarding", "Gestão de Pessoas"], analise: "João tem sólida experiência em recrutamento. Próxima etapa: Entrevista Técnica."}},
-    { id: 3, nome: "Pedro Rocha", vaga: "Dev Frontend", status: "Em Contato", email: "pedro@email.com", telefone: "(11) 97777-6666", cvUrl: "link_cv_pedro.pdf", cvDetalhe: {skills: ["HTML", "CSS", "Angular"], analise: "Pedro possui experiência com desenvolvimento web, mas sua principal habilidade é Angular, não React. Baixa aderência aos requisitos técnicos da vaga."}},
-    { id: 4, nome: "Ana Costa", vaga: "Dev Frontend", status: "Novo", email: "ana@email.com", telefone: "(11) 95555-4444", cvUrl: "link_cv_ana.pdf", cvDetalhe: {skills: ["React", "Redux", "TypeScript", "Node.js"], analise: "Ana é uma candidata ideal, com experiência em tecnologias adicionais. Atribuir entrevista urgente."}}
+  { id: 1, nome: "Maria Silva", vaga: "Dev Frontend", status: "Contratado", email: "maria@email.com", telefone: "(11) 98765-4321", cvUrl: "link_cv_maria.pdf", cvDetalhe: { skills: ["React", "Node.js", "JavaScript", "UX/UI"], analise: "Maria possui forte experiência com React e Node.js. (CONTRATADA, 01/09)" } },
+  { id: 2, nome: "João Souza", vaga: "Analista RH", status: "Entrevista Técnica", email: "joao@email.com", telefone: "(11) 99999-8888", cvUrl: "link_cv_joao.pdf", cvDetalhe: { skills: ["Recrutamento", "Onboarding", "Gestão de Pessoas"], analise: "João tem sólida experiência em recrutamento. Próxima etapa: Entrevista Técnica." } },
+  { id: 3, nome: "Pedro Rocha", vaga: "Dev Frontend", status: "Em Contato", email: "pedro@email.com", telefone: "(11) 97777-6666", cvUrl: "link_cv_pedro.pdf", cvDetalhe: { skills: ["HTML", "CSS", "Angular"], analise: "Pedro possui experiência com desenvolvimento web, mas sua principal habilidade é Angular, não React. Baixa aderência aos requisitos técnicos da vaga." } },
+  { id: 4, nome: "Ana Costa", vaga: "Dev Frontend", status: "Novo", email: "ana@email.com", telefone: "(11) 95555-4444", cvUrl: "link_cv_ana.pdf", cvDetalhe: { skills: ["React", "Redux", "TypeScript", "Node.js"], analise: "Ana é uma candidata ideal, com experiência em tecnologias adicionais. Atribuir entrevista urgente." } }
 ];
 
 let vagaIdAtual = null;
-let modalCandidatoId = null; 
+let modalCandidatoId = null;
 let modalVagaId = null;
 
 // FUNÇÕES DE UTILIDADE E INTERFACE
 
-function toggleUserMenu() { 
-    document.getElementById("userMenu").classList.toggle("show"); 
+function toggleUserMenu() {
+  document.getElementById("userMenu").classList.toggle("show");
 }
 
 function abrirModalCustom(contentHtml) {
-    document.getElementById('modalContent').innerHTML = contentHtml;
-    document.getElementById('customModal').style.display = 'flex'; 
+  document.getElementById('modalContent').innerHTML = contentHtml;
+  document.getElementById('customModal').style.display = 'flex';
 }
 function fecharModalCustom() {
-    document.getElementById('customModal').style.display = 'none';
-    modalVagaId = null;
-    modalCandidatoId = null;
+  document.getElementById('customModal').style.display = 'none';
+  modalVagaId = null;
+  modalCandidatoId = null;
 }
 
-function getVagaMetrics(titulo) {
-    const ativos = curriculos.filter(c => c.vaga === titulo && (c.status === "Novo" || c.status === "Em Contato" || c.status === "Entrevista Técnica"));
+async function getVagaMetrics(vagaId) {
+  try {
+    const response = await fetch(`http://localhost:5000/processo-seletivo/vaga/${vagaId}`);
+    if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
+    const candidatos = await response.json();
+
+    const ativos = candidatos.filter(c => ["Novo", "Em Contato", "Entrevista Técnica"].includes(c.status));
     const novos = ativos.filter(c => c.status === "Novo").length;
-    const emContato = ativos.filter(c => c.status === "Em Contato" || c.status === "Entrevista Técnica").length;
-    const totalContratados = curriculos.filter(c => c.vaga === titulo && c.status === "Contratado").length;
-    
+    const emContato = ativos.filter(c => ["Em Contato", "Entrevista Técnica"].includes(c.status)).length;
+    const totalContratados = candidatos.filter(c => c.status === "Contratado").length;
+
     return { totalAtivos: ativos.length, novos, emContato, totalContratados };
+  } catch (erro) {
+    console.error("Erro ao buscar métricas da vaga:", erro);
+    return { totalAtivos: 0, novos: 0, emContato: 0, totalContratados: 0 };
+  }
 }
 
 function filterCards(containerId, inputId, dataAttr) {
   const val = (document.getElementById(inputId)?.value || "").toLowerCase();
   document.querySelectorAll(`#${containerId} .card`).forEach(c => {
     let textToSearch = c.innerText.toLowerCase();
-    
+
     if (dataAttr) {
-        const dataVal = c.getAttribute(dataAttr).toLowerCase();
-        c.style.display = (!val || dataVal === val || dataVal.includes(val)) ? "" : "none";
+      const dataVal = c.getAttribute(dataAttr).toLowerCase();
+      c.style.display = (!val || dataVal === val || dataVal.includes(val)) ? "" : "none";
     } else {
-        c.style.display = textToSearch.includes(val) ? "" : "none";
+      c.style.display = textToSearch.includes(val) ? "" : "none";
     }
   });
 }
 function filterCardByStatus(containerId = 'vagaCard', dataAttribute = 'data-status') {
-    const val = document.getElementById("filterVagas")?.value || "";
-    document.querySelectorAll(`#${containerId} .card`).forEach(c => {
-      const status = c.getAttribute(dataAttribute);
-      c.style.display = !val || status === val ? "" : "none";
-    });
+  const val = document.getElementById("filterVagas")?.value || "";
+  document.querySelectorAll(`#${containerId} .card`).forEach(c => {
+    const status = c.getAttribute(dataAttribute);
+    c.style.display = !val || status === val ? "" : "none";
+  });
 }
 
-function loadContent(page) {
-  let html = "";
+async function loadContent(page) {
   const mainContent = document.getElementById("mainContent");
-  const vagasAbertas = vagas.filter(v => v.status === 'Aberta');
   fecharModalCustom();
 
+  try {
+    const resposta = await fetch(`http://localhost:5000/vagas/gestor/${id_usuario}`);
+    if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
+    vagas = await resposta.json();
+  } catch (erro) {
+    console.error("Erro ao buscar vagas:", erro);
+    mainContent.innerHTML = `<div style="padding:20px; color:red;">Erro ao carregar vagas. Verifique o servidor.</div>`;
+    return;
+  }
+
+  // const vagasAbertas = vagas.filter(v => v.status === 'Aberta');
+  let html = "";
+
   if (page === "listarVagas") {
+    let cardsHTML = "";
+    for (const v of vagas) {
+      const metrics = await getVagaMetrics(v.id_vaga);
+      const temCandidatos = metrics.totalAtivos > 0 || metrics.totalContratados > 0;
+
+      cardsHTML += `
+        <div class="card status-${v.status.toLowerCase().replace(/ /g, '-')}" data-status="${v.status}">
+          <div>
+            <h3>${v.titulo}</h3>
+            <p><strong>Status:</strong> ${v.status}</p>
+            <p><strong>Descrição:</strong> ${v.descricao || "Sem descrição"}</p>
+            <p><strong>Data de criação:</strong> ${new Date(v.data_criacao).toLocaleString()}</p>
+            ${v.status === 'Aberta' ? `<hr style="margin: 5px 0;">
+              <p style="font-size: 13px; color: #2c3e50;">
+                <strong style="color: ${metrics.novos > 0 ? '#dc3545' : '#3498db'};">Novos CVs: ${metrics.novos}</strong> | 
+                <strong style="color: #9b59b6;">Em Contato/Entrevista: ${metrics.emContato}</strong>
+                ${metrics.totalContratados > 0 ? `| <strong style="color: #28a745;">CONTRATADOS: ${metrics.totalContratados}</strong>` : ''}
+              </p>` : ""}
+          </div>
+          <div class="action-icons">
+            <img title="Editar detalhes RH" onclick="editarDetalhesVagaRH(${v.id_vaga})" class="icon-cards" src="../img/edit-icon.png" alt="">
+            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
+            ${v.status === 'Aberta' && temCandidatos ?
+          `<button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
+                Candidatos (${metrics.totalAtivos + metrics.totalContratados})
+              </button>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
     html = `
       <div class="crud-container">
         <div class="breadcrumb">Vagas > Listar</div>
         <h2>Listar Vagas</h2>
         <div class="filter-box">
-          <input type="text" id="searchVagas" placeholder="Buscar por Título/Gestor/Responsável..." onkeyup="filterCards('vagaCard','searchVagas')">
+          <input type="text" id="searchVagas" placeholder="Buscar por Título..." onkeyup="filterCards('vagaCard','searchVagas')">
           <select id="filterVagas" onchange="filterCardByStatus()">
             <option value="">Todos os Status</option>
             <option value="Aberta">Abertas</option>
-            <option value="Em análise">Em Análise</option>
+            <option value="Em Análise">Em Análise</option>
             <option value="Fechada">Fechadas</option>
           </select>
         </div>
         <div class="card-grid" id="vagaCard">
-          ${vagas.map(v => {
-            const metrics = getVagaMetrics(v.titulo);
-            const temCandidatos = metrics.totalAtivos > 0 || metrics.totalContratados > 0;
-            return `
-              <div class="card status-${v.status.toLowerCase().replace(/ /g, '-')}" data-status="${v.status}">
-                <div>
-                  <h3>${v.titulo}</h3>
-                  <p><strong>Gestor:</strong> ${v.gestor || "N/A"}</p>
-                  <p><strong>Responsável R&S:</strong> ${v.responsavelRS || "Aguardando RH"}</p>
-                  ${v.status === 'Aberta' ? `<hr style="margin: 5px 0;">
-                    <p style="font-size: 13px; color: #2c3e50;">
-                      <strong style="color: ${metrics.novos > 0 ? '#dc3545' : '#3498db'};">Novos CVs: ${metrics.novos}</strong> | 
-                      <strong style="color: #9b59b6;">Em Contato/Entrevista: ${metrics.emContato}</strong>
-                      ${metrics.totalContratados > 0 ? `| <strong style="color: #28a745;">CONTRATADOS: ${metrics.totalContratados}</strong>` : ''}
-                    </p>` : `<p><strong>Status:</strong> ${v.status}</p>`}
-                </div>
-                <div class="action-icons">
-                  <img title="Editar detalhes RH" onclick="editarDetalhesVagaRH(${v.id})" class="icon-cards" src="../img/edit-icon.png" alt="">
-                  <img  title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
-                  ${v.status === 'Aberta' && temCandidatos ? 
-                    `<button class="btn-ghost" title="Ver Candidatos Atribuídos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id})">
-                      Candidatos (${metrics.totalAtivos + metrics.totalContratados})
-                    </button>` 
-                    : ''}
-                </div>
-              </div>
-            `;
-          }).join("")}
+          ${cardsHTML}
         </div>
-      </div>`;
+      </div>
+    `;
   }
 
   if (page === "curriculos") {
     const candidatosTriagem = curriculos.filter(c => c.status === "Novo" || c.status === "Em Contato");
-    
+
     html = `
       <div class="crud-container">
         <div class="breadcrumb">Candidatos > Curriculos</div>
@@ -152,16 +187,132 @@ function loadContent(page) {
   mainContent.innerHTML = html;
 }
 
+async function verDetalhesVagaGestor(id_vaga) {
+  try {
+    // Busca os dados da vaga direto do backend
+    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar detalhes da vaga");
+
+    const v = await resposta.json();
+
+    const html = `
+      <div class="crud-container">
+        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar</a> > Especificações do Gestor</div>
+        <h2>Especificações da Vaga (${v.titulo})</h2>
+        <div class="detail-form-grid">
+          <p class="descricao" style="color:red;">Para editar campo, entrar em contato com o gestor</p>
+
+          <div class="field-group">
+            <label class="field-label">Gestor Requisitante</label>
+            <input class="field-value read-only" value="${v.id_usuario ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Status Atual</label>
+            <input class="field-value read-only" value="${v.status ?? ''}" disabled>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Requisitos Técnicos</label>
+            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Descrição Resumida</label>
+            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Título</label>
+            <input class="field-value read-only" value="${v.titulo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Departamento</label>
+            <input class="field-value read-only" value="${v.departamento_nome ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Localização</label>
+            <input class="field-value read-only" value="${v.localizacao ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Cidade</label>
+            <input class="field-value read-only" value="${v.cidade ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Tipo de Contratação</label>
+            <input class="field-value read-only" value="${v.tipo_contratacao ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nível</label>
+            <input class="field-value read-only" value="${v.nivel_vaga ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Motivo</label>
+            <input class="field-value read-only" value="${v.motivo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Nº Vagas</label>
+            <input type="number" class="field-value read-only" value="${v.numero_vagas ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Urgência</label>
+            <input class="field-value read-only" value="${v.urgencia ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Prazo</label>
+            <input type="date" class="field-value read-only" value="${v.prazo ?? ''}" disabled>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Skills</label>
+            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
+          </div>
+
+          <div class="field-group full-width">
+            <label class="field-label">Justificativa</label>
+            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
+          </div>
+        </div>
+
+        <div style="margin-top:20px;">
+          <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar</button>
+        </div>
+      </div>`;
+
+    document.getElementById("mainContent").innerHTML = html;
+
+  } catch (erro) {
+    console.error("Erro ao carregar detalhes da vaga:", erro);
+    document.getElementById("mainContent").innerHTML = `
+      <div class="crud-container">
+        <h2>Erro ao carregar detalhes</h2>
+        <p>${erro.message}</p>
+        <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar</button>
+      </div>`;
+  }
+}
+
+
+
 // FUNÇÕES DE VAGA, CANDIDATO E MODAIS
 
 function listarCandidatosPorVaga(tituloVaga, idVaga) {
-    vagaIdAtual = idVaga;
-    const candidatosDaVaga = curriculos.filter(c => c.vaga === tituloVaga);
-    
-    let htmlCandidatos = candidatosDaVaga.map(c => {
-        const statusClass = c.status.toLowerCase().replace(/ /g, '-');
-        
-        return `
+  vagaIdAtual = idVaga;
+  const candidatosDaVaga = curriculos.filter(c => c.vaga === tituloVaga);
+
+  let htmlCandidatos = candidatosDaVaga.map(c => {
+    const statusClass = c.status.toLowerCase().replace(/ /g, '-');
+
+    return `
             <div class="card status-${statusClass}" data-status="${c.status}">
                 <div>
                     <h3>${c.nome}</h3>
@@ -169,15 +320,15 @@ function listarCandidatosPorVaga(tituloVaga, idVaga) {
                     <p><strong>Contato:</strong> ${c.email}</p>
                 </div>
                 <div class="action-icons" style="justify-content: flex-end;">
-                    ${c.status !== 'Contratado' ? 
-                      `<button class="btn-ghost" title="Mudar Status" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="abrirModalMudarStatus(${c.id}, '${c.nome}', '${c.status}', '${tituloVaga}')">Status</button>`
-                      : ''}
+                    ${c.status !== 'Contratado' ?
+        `<button class="btn-ghost" title="Mudar Status" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="abrirModalMudarStatus(${c.id}, '${c.nome}', '${c.status}', '${tituloVaga}')">Status</button>`
+        : ''}
                 </div>
             </div>
         `;
-    }).join("");
+  }).join("");
 
-    const html = `
+  const html = `
       <div class="crud-container">
         <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar Vagas</a> > Candidatos: ${tituloVaga}</div>
         <h2>Candidatos Atribuídos: ${tituloVaga}</h2>
@@ -191,21 +342,21 @@ function listarCandidatosPorVaga(tituloVaga, idVaga) {
             <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar para Vagas</button>
         </div>
       </div>`;
-    document.getElementById("mainContent").innerHTML = html;
+  document.getElementById("mainContent").innerHTML = html;
 }
 
 function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga) {
-    modalCandidatoId = idCandidato;
-    const c = curriculos.find(x => x.id === idCandidato);
+  modalCandidatoId = idCandidato;
+  const c = curriculos.find(x => x.id === idCandidato);
 
-    let opcoes = [
-      { value: "Em Contato", label: "Em Contato (Triagem Inicial)" },
-      { value: "Entrevista Técnica", label: "Entrevista Técnica (Próxima Fase)" },
-      { value: "Reprovado", label: "Reprovado (Desclassificar)" },
-      { value: "Contratado", label: "Contratado (Fechar Vaga)" }
-    ].filter(opt => opt.value !== statusAtual);
+  let opcoes = [
+    { value: "Em Contato", label: "Em Contato (Triagem Inicial)" },
+    { value: "Entrevista Técnica", label: "Entrevista Técnica (Próxima Fase)" },
+    { value: "Reprovado", label: "Reprovado (Desclassificar)" },
+    { value: "Contratado", label: "Contratado (Fechar Vaga)" }
+  ].filter(opt => opt.value !== statusAtual);
 
-    const html = `
+  const html = `
         <h3>Atualizar Status de: ${nomeCandidato}</h3>
         <p>Vaga: <strong>${tituloVaga}</strong> | Status Atual: <strong>${statusAtual}</strong></p>
         <label class="field-label" style="margin-top:10px;">Novo Status no Pipeline:</label>
@@ -222,52 +373,49 @@ function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVa
             <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar</button>
             <button class="btn-ghost" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="confirmarMudarStatus('${tituloVaga}')">Confirmar Mudança</button>
         </div>`;
-    abrirModalCustom(html);
+  abrirModalCustom(html);
 }
 
 function confirmarMudarStatus(tituloVaga) {
-    const novoStatus = document.getElementById('selectNovoStatus').value;
-    const c = curriculos.find(x => x.id === modalCandidatoId);
-    let v = vagas.find(x => x.titulo === tituloVaga);
+  const novoStatus = document.getElementById('selectNovoStatus').value;
+  const c = curriculos.find(x => x.id === modalCandidatoId);
+  let v = vagas.find(x => x.titulo === tituloVaga);
 
-    if (c) {
-        c.status = novoStatus;
-        
-        if (novoStatus === "Contratado") {
-            if (v) v.status = "Fechada";
-            alert(`Sucesso! Candidato ${c.nome} contratado. A vaga '${tituloVaga}' foi marcada como Fechada.`);
-        } else if (novoStatus === "Reprovado") {
-            alert(`Candidato ${c.nome} reprovado. (TODO: Mover dados detalhados para o Banco de Talentos).`);
-        } else {
-            alert(`Status de ${c.nome} alterado para: ${novoStatus}.`);
-        }
-    }
-    
-    fecharModalCustom();
+  if (c) {
+    c.status = novoStatus;
 
-    // Adiciona uma verificação para garantir que a vaga foi encontrada antes de chamar a listagem
-    if (v) {
-        // Volta para a lista de candidatos da vaga atualizada
-        listarCandidatosPorVaga(tituloVaga, v.id);
+    if (novoStatus === "Contratado") {
+      if (v) v.status = "Fechada";
+      alert(`Sucesso! Candidato ${c.nome} contratado. A vaga '${tituloVaga}' foi marcada como Fechada.`);
+    } else if (novoStatus === "Reprovado") {
+      alert(`Candidato ${c.nome} reprovado. (TODO: Mover dados detalhados para o Banco de Talentos).`);
     } else {
-         // Se não encontrar a vaga, volta para a lista principal
-        loadContent('listarVagas'); 
+      alert(`Status de ${c.nome} alterado para: ${novoStatus}.`);
     }
+  }
+
+  fecharModalCustom();
+
+  // Adiciona uma verificação para garantir que a vaga foi encontrada antes de chamar a listagem
+  if (v) {
+    // Volta para a lista de candidatos da vaga atualizada
+    listarCandidatosPorVaga(tituloVaga, v.id);
+  } else {
+    // Se não encontrar a vaga, volta para a lista principal
+    loadContent('listarVagas');
+  }
 }
 
 // INICIALIZAÇÃO DA PÁGINA (EXECUTA NO CARREGAMENTO)
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Lógica para fechar submenus quando outro é clicado e alternar o clique
-    document.querySelectorAll(".menu-item").forEach(btn => {
-      btn.addEventListener("click", () => {
-        // Fecha outros submenus abertos
-        document.querySelectorAll(".submenu.open").forEach(s => {
-             if (s !== btn.nextElementSibling) s.classList.remove("open");
-        });
-        // Alterna o submenu atual
-        const submenu = btn.nextElementSibling;
-        submenu.classList.toggle("open");
+  document.querySelectorAll(".menu-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".submenu.open").forEach(s => {
+        if (s !== btn.nextElementSibling) s.classList.remove("open");
       });
+      const submenu = btn.nextElementSibling;
+      submenu.classList.toggle("open");
     });
+  });
 });
