@@ -21,6 +21,19 @@ async function carregarVagas() {
   }
 }
 
+let candidato_triagem = [];
+
+async function carregar_cadidato_triagem() {
+  try {
+    const resposta = await fetch("http://localhost:5000/curriculos");
+    if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
+    candidato_triagem = await resposta.json();
+    console.log("Candidatos na triagem carregados:", candidato_triagem);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 let curriculos = [
   { id: 1, nome: "Maria Silva", vaga: "Dev Frontend", status: "Contratado", email: "maria@email.com", telefone: "(11) 98765-4321", cvUrl: "link_cv_maria.pdf", cvDetalhe: { skills: ["React", "Node.js", "JavaScript", "UX/UI"], analise: "Maria possui forte experiência com React e Node.js. (CONTRATADA, 01/09)" } },
   { id: 2, nome: "João Souza", vaga: "Analista RH", status: "Entrevista Técnica", email: "joao@email.com", telefone: "(11) 99999-8888", cvUrl: "link_cv_joao.pdf", cvDetalhe: { skills: ["Recrutamento", "Onboarding", "Gestão de Pessoas"], analise: "João tem sólida experiência em recrutamento. Próxima etapa: Entrevista Técnica." } },
@@ -141,6 +154,15 @@ async function loadContent(page) {
     return;
   }
 
+  try {
+    const resposta = await fetch("http://localhost:5000/processo-seletivo");
+    if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
+    candidato_triagem = await resposta.json();
+    console.log("Candidatos na triagem carregados:", candidato_triagem);
+  } catch (err) {
+    console.error(err);
+  }
+
   // Filtros derivados
   const vagasAbertas = vagas.filter(v => v.status === 'Aberta');
   let html = "";
@@ -224,7 +246,8 @@ async function loadContent(page) {
   }
 
   if (page === "triagem") {
-    const candidatosTriagem = curriculos.filter(c => c.status === "Novo" || c.status === "Em Contato");
+    // Filtra os candidatos carregados pela função async
+    const candidatosTriagem = candidato_triagem.filter(c => c.status === "Novo" || c.status === "Em Contato");
 
     html = `
       <div class="crud-container">
@@ -234,8 +257,11 @@ async function loadContent(page) {
           <input type="text" id="searchCurriculos" placeholder="Buscar Candidato/Vaga..." onkeyup="filterCards('triagemCardGrid','searchCurriculos')">
           <select id="filterStatusCurriculo" onchange="filterCards('triagemCardGrid','filterStatusCurriculo', 'data-status')">
             <option value="">Todos</option>
-            <option value="Novo">Novo (Para Triar)</option>
-            <option value="Em Contato">Em Contato (Ativo)</option>
+            <option value="Novo">Novo</option>
+            <option value="Entrevista">Entrevista</option>
+            <option value="Triagem">Triagem</option>
+            <option value="Rejeitado">Rejeitado</option>
+            <option value="Contratado">Contratado</option>
           </select>
         </div>
 
@@ -249,16 +275,17 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
-                  <img title="Atribuir candidato"  onclick="abrirModalAtribuicao(${c.id}, '${c.nome}')" class="icon-cards" src="../img/atribuir-icon.png" alt="">
-                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id})" class="icon-cards" src="../img/inspecionar-icon.png" alt=">
-                  <img title="Mover para talentos"  onclick="moverParaTalentos(${c.id})" class="icon-cards" src="../img/mover-icon.png" alt="">
-                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id})" class="icon-cards" src="../img/lixo-icon.png" alt="">
+                  <img title="Atribuir candidato" onclick="abrirModalAtribuicao(${c.id_curriculo}, '${c.nome}')" class="icon-cards" src="../img/atribuir-icon.png" alt="">
+                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
+                  <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="../img/mover-icon.png" alt="">
+                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("")}
         </div>
       </div>`;
   }
+
 
   if (page === "uploadCurriculos") {
     html = `
@@ -620,75 +647,75 @@ function moverParaTalentos(id) {
   }
 }
 // A função principal de exibição do currículo
-async function exibirCurriculo(id, rodarIA = false) { 
-    const c = curriculos.find(x => x.id === id);
-    const vaga = vagas.find(v => v.titulo === c.vaga);
-    
-    // 1. Inicialização do Estado da IA no currículo
-    if (!c.iaResultado) {
-        c.iaResultado = { matchScore: 'N/A', analiseIA: 'Clique no botão abaixo para rodar a análise de IA.', iaRodada: false };
-    }
-    
-    // 2. Lógica para definir os parâmetros da IA
-    let requisitosParaAnalise = "";
-    let nomeVagaParaIA = "Candidato em Triagem (Potencial Geral)"; 
+async function exibirCurriculo(id, rodarIA = false) {
+  const c = curriculos.find(x => x.id === id);
+  const vaga = vagas.find(v => v.titulo === c.vaga);
 
-    if (vaga) {
-        requisitosParaAnalise = vaga.requisitos;
-        nomeVagaParaIA = c.vaga;
-    } else if (c.vaga && c.vaga !== 'N/A') {
-        requisitosParaAnalise = "N/A (Vaga não encontrada)";
-        nomeVagaParaIA = c.vaga; 
-    } else {
-        requisitosParaAnalise = "N/A";
-        nomeVagaParaIA = "Área Geral/Banco de Talentos";
+  // 1. Inicialização do Estado da IA no currículo
+  if (!c.iaResultado) {
+    c.iaResultado = { matchScore: 'N/A', analiseIA: 'Clique no botão abaixo para rodar a análise de IA.', iaRodada: false };
+  }
+
+  // 2. Lógica para definir os parâmetros da IA
+  let requisitosParaAnalise = "";
+  let nomeVagaParaIA = "Candidato em Triagem (Potencial Geral)";
+
+  if (vaga) {
+    requisitosParaAnalise = vaga.requisitos;
+    nomeVagaParaIA = c.vaga;
+  } else if (c.vaga && c.vaga !== 'N/A') {
+    requisitosParaAnalise = "N/A (Vaga não encontrada)";
+    nomeVagaParaIA = c.vaga;
+  } else {
+    requisitosParaAnalise = "N/A";
+    nomeVagaParaIA = "Área Geral/Banco de Talentos";
+  }
+
+  // 3. Chama a IA apenas se rodarIA for true
+  if (rodarIA) {
+    // Estado de Carregamento
+    let carregandoResultado = { matchScore: '...', analiseIA: 'Aguardando análise da IA (Gemini)...', iaRodada: false };
+    // Renderiza o HTML com estado de "carregando"
+    let loadingHtml = montarCurriculoHTML(c, vaga, carregandoResultado, nomeVagaParaIA);
+    document.getElementById("mainContent").innerHTML = loadingHtml;
+
+    // Exibe status de carregamento no botão
+    const iaButtonArea = document.getElementById('iaButtonArea');
+    if (iaButtonArea) {
+      iaButtonArea.innerHTML = '<span style="color: #00c4cc; font-weight: bold;"> Rodando análise... Aguarde.</span>';
     }
 
-    // 3. Chama a IA apenas se rodarIA for true
-    if (rodarIA) {
-        // Estado de Carregamento
-        let carregandoResultado = { matchScore: '...', analiseIA: 'Aguardando análise da IA (Gemini)...', iaRodada: false };
-        // Renderiza o HTML com estado de "carregando"
-        let loadingHtml = montarCurriculoHTML(c, vaga, carregandoResultado, nomeVagaParaIA);
-        document.getElementById("mainContent").innerHTML = loadingHtml;
-        
-        // Exibe status de carregamento no botão
-        const iaButtonArea = document.getElementById('iaButtonArea');
-        if (iaButtonArea) {
-            iaButtonArea.innerHTML = '<span style="color: #00c4cc; font-weight: bold;"> Rodando análise... Aguarde.</span>';
-        }
-        
-        // Obtém o resultado da IA (VIA FETCH PARA O SEU app.py)
-        let resultado = await fetchMatchScoreIA(c.cvDetalhe.skills, requisitosParaAnalise, nomeVagaParaIA);
-        
-        // Salva o resultado no objeto do currículo
-        c.iaResultado = {
-            matchScore: resultado.matchScore,
-            analiseIA: resultado.analiseIA,
-            iaRodada: true // Assume que rodou se chegou até aqui (mesmo que com erro)
-        };
-    }
-    
-    // 4. Renderiza o HTML com o estado final (ou carregado)
-    let html = montarCurriculoHTML(c, vaga, c.iaResultado, nomeVagaParaIA);
-    document.getElementById("mainContent").innerHTML = html;
+    // Obtém o resultado da IA (VIA FETCH PARA O SEU app.py)
+    let resultado = await fetchMatchScoreIA(c.cvDetalhe.skills, requisitosParaAnalise, nomeVagaParaIA);
+
+    // Salva o resultado no objeto do currículo
+    c.iaResultado = {
+      matchScore: resultado.matchScore,
+      analiseIA: resultado.analiseIA,
+      iaRodada: true // Assume que rodou se chegou até aqui (mesmo que com erro)
+    };
+  }
+
+  // 4. Renderiza o HTML com o estado final (ou carregado)
+  let html = montarCurriculoHTML(c, vaga, c.iaResultado, nomeVagaParaIA);
+  document.getElementById("mainContent").innerHTML = html;
 }
 
 // Função auxiliar para construir o HTML (AGORA COM BOTÃO DE IA)
 function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
-    // Checa se a IA já foi rodada. Usamos iaResultado.iaRodada para rastrear isso.
-    const isReady = iaResultado.iaRodada;
-    const scoreColor = iaResultado.matchScore >= 80 ? '#28a745' : iaResultado.matchScore >= 50 ? '#ffc107' : '#e74c3c';
-    
-    const requisitosInfo = vaga ? vaga.requisitos : (c.vaga && c.vaga !== 'N/A' ? `Vaga "${c.vaga}" não encontrada na base.` : 'Candidato sem vaga atribuída.');
-    const matchScoreDisplay = isReady ? iaResultado.matchScore + '%' : (iaResultado.matchScore === '...' ? '...' : 'N/A');
-    const analiseIADisplay = isReady ? iaResultado.analiseIA : 'Clique no botão abaixo para rodar a análise de IA.';
-    
-    const buttonHtml = `<button class="btn-ghost" onclick="exibirCurriculo(${c.id}, true)" style="background:#00c4cc; color:white; font-weight: bold;">
+  // Checa se a IA já foi rodada. Usamos iaResultado.iaRodada para rastrear isso.
+  const isReady = iaResultado.iaRodada;
+  const scoreColor = iaResultado.matchScore >= 80 ? '#28a745' : iaResultado.matchScore >= 50 ? '#ffc107' : '#e74c3c';
+
+  const requisitosInfo = vaga ? vaga.requisitos : (c.vaga && c.vaga !== 'N/A' ? `Vaga "${c.vaga}" não encontrada na base.` : 'Candidato sem vaga atribuída.');
+  const matchScoreDisplay = isReady ? iaResultado.matchScore + '%' : (iaResultado.matchScore === '...' ? '...' : 'N/A');
+  const analiseIADisplay = isReady ? iaResultado.analiseIA : 'Clique no botão abaixo para rodar a análise de IA.';
+
+  const buttonHtml = `<button class="btn-ghost" onclick="exibirCurriculo(${c.id}, true)" style="background:#00c4cc; color:white; font-weight: bold;">
         Rodar Análise de IA (Gemini)
     </button>`;
 
-    return `<div class="crud-container"><div class="breadcrumb">Candidatos > <a onclick="loadContent('triagem')">Triagem</a> > Detalhes do Candidato</div><h2>Detalhes: ${c.nome}</h2><div class="detail-form-grid">
+  return `<div class="crud-container"><div class="breadcrumb">Candidatos > <a onclick="loadContent('triagem')">Triagem</a> > Detalhes do Candidato</div><h2>Detalhes: ${c.nome}</h2><div class="detail-form-grid">
         <div class="field-group"><label class="field-label">Vaga Atribuída</label><input class="field-value read-only" value="${c.vaga || 'N/A'}" disabled></div>
         <div class="field-group"><label class="field-label">Status Atual</label><input class="field-value read-only" value="${c.status}" disabled></div>
         <div class="field-group"><label class="field-label">Email</label><input class="field-value read-only" value="${c.email}" disabled></div>
@@ -711,9 +738,9 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
         
         <div style="text-align:center; margin-top: 15px;" id="iaButtonArea">
             ${isReady ? '' : buttonHtml} 
-            ${isReady && c.status !== 'Contratado' ? 
-                `<button class="btn-ghost" onclick="moverParaTalentos(${c.id})" style="background:#00c4cc; color:white; border-color:#5bc0de;">Mover para Banco de Talentos</button>` 
-                : ''}
+            ${isReady && c.status !== 'Contratado' ?
+      `<button class="btn-ghost" onclick="moverParaTalentos(${c.id})" style="background:#00c4cc; color:white; border-color:#5bc0de;">Mover para Banco de Talentos</button>`
+      : ''}
         </div>
     </div>
     <hr style="margin-top:20px; margin-bottom: 20px;">
@@ -748,7 +775,7 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
         <a href="${c.cvUrl}" target="_blank" class="btn-ghost" style="background:#00c4cc; color:white; text-decoration:none; padding:10px; border-color:#00c4cc; margin-left: 10px;">Visualizar CV Original</a>
     </div>
 </div>`;
-} 
+}
 
 function toggleSkillEditMode(idCandidato) {
   const view = document.getElementById(`skillsView-${idCandidato}`);
@@ -830,39 +857,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
-    // A URL do seu servidor Python (Flask)
-    const apiURL = 'http://127.0.0.1:5001/api/match-score'; 
-    
-    try {
-        const response = await fetch(apiURL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                skills: candidatoSkills,
-                requisitos: vagaRequisitos,
-                nomeVaga: nomeVaga // Parâmetro necessário para o seu app.py
-            })
-        });
+  // A URL do seu servidor Python (Flask)
+  const apiURL = 'http://127.0.0.1:5001/api/match-score';
 
-        if (!response.ok) {
-            // Se a resposta HTTP falhar (ex: 400 Bad Request)
-            const errorData = await response.json().catch(() => ({ analise_ia: `Erro HTTP ${response.status}.` }));
-            throw new Error(`Erro ao buscar Match Score. Status: ${response.status}. Detalhe: ${errorData.analise_ia}`);
-        }
+  try {
+    const response = await fetch(apiURL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        skills: candidatoSkills,
+        requisitos: vagaRequisitos,
+        nomeVaga: nomeVaga // Parâmetro necessário para o seu app.py
+      })
+    });
 
-        const data = await response.json();
-        return {
-            matchScore: data.match_score || 0,
-            analiseIA: data.analise_ia || "Análise da IA não disponível.",
-        };
-
-    } catch (error) {
-        console.error("Erro ao buscar Match Score da IA:", error);
-        return {
-            matchScore: 'N/A', // Mude para 'N/A' para indicar que não rodou
-            analiseIA: `Falha na conexão com o servidor de IA (Verifique se o 'gemini.py' está rodando na porta 5000). Erro: ${error.message}`,
-        };
+    if (!response.ok) {
+      // Se a resposta HTTP falhar (ex: 400 Bad Request)
+      const errorData = await response.json().catch(() => ({ analise_ia: `Erro HTTP ${response.status}.` }));
+      throw new Error(`Erro ao buscar Match Score. Status: ${response.status}. Detalhe: ${errorData.analise_ia}`);
     }
+
+    const data = await response.json();
+    return {
+      matchScore: data.match_score || 0,
+      analiseIA: data.analise_ia || "Análise da IA não disponível.",
+    };
+
+  } catch (error) {
+    console.error("Erro ao buscar Match Score da IA:", error);
+    return {
+      matchScore: 'N/A', // Mude para 'N/A' para indicar que não rodou
+      analiseIA: `Falha na conexão com o servidor de IA (Verifique se o 'gemini.py' está rodando na porta 5000). Erro: ${error.message}`,
+    };
+  }
 }
