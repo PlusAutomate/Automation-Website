@@ -25,7 +25,7 @@ let candidato_triagem = [];
 
 async function carregar_cadidato_triagem() {
   try {
-    const resposta = await fetch("http://localhost:5000/curriculos");
+    const resposta = await fetch("http://localhost:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -247,7 +247,7 @@ async function loadContent(page) {
 
   if (page === "triagem") {
     // Filtra os candidatos carregados pela função async
-    const candidatosTriagem = candidato_triagem.filter(c => c.status === "Novo" || c.status === "Em Contato");
+    const candidatosTriagem = candidato_triagem.filter(c => c.status === "Novo" || c.status === "Triagem" || c.status === "Entrevista" || c.status === "Rejeitado" || c.status === "Contratado");
 
     html = `
       <div class="crud-container">
@@ -270,7 +270,7 @@ async function loadContent(page) {
             <div class="card status-${c.status.toLowerCase().replace(/ /g, '-')}" data-status="${c.status}">
               <div>
                 <h3>${c.nome}</h3>
-                <p><strong>Vaga:</strong> ${c.vaga || "N/A"}</p>
+                <p><strong>Vaga:</strong> ${c.id_vaga || "N/A"}</p>
                 <p><strong>Status:</strong> ${c.status}</p>
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
@@ -747,8 +747,8 @@ function moverParaTalentos(id) {
 }
 // A função principal de exibição do currículo
 async function exibirCurriculo(id, rodarIA = false) {
-  const c = curriculos.find(x => x.id === id);
-  const vaga = vagas.find(v => v.titulo === c.vaga);
+  const c = candidato_triagem.find(x => x.id === id);
+  const vaga = vagas.find(v => v.id_vaga === c.id_vaga);
 
   // 1. Inicialização do Estado da IA no currículo
   if (!c.iaResultado) {

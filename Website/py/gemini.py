@@ -9,7 +9,7 @@ import json
 
 app = Flask(__name__)
 # Libera CORS para o frontend (localhost:5500)
-CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:5500", "http://localhost:5500"]}})
+CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:61528", "http://localhost:61528"]}})
 
 # --- CONFIGURAÇÃO DA API KEY DO GEMINI ---
 # CHAVE VIA https://aistudio.google.com/api-keys
