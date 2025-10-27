@@ -14,12 +14,18 @@ async function carregarVagasGestor() {
   }
 }
 
-let curriculos = [
-  { id: 1, nome: "Maria Silva", vaga: "Dev Frontend", status: "Contratado", email: "maria@email.com", telefone: "(11) 98765-4321", cvUrl: "link_cv_maria.pdf", cvDetalhe: { skills: ["React", "Node.js", "JavaScript", "UX/UI"], analise: "Maria possui forte experiência com React e Node.js. (CONTRATADA, 01/09)" } },
-  { id: 2, nome: "João Souza", vaga: "Analista RH", status: "Entrevista Técnica", email: "joao@email.com", telefone: "(11) 99999-8888", cvUrl: "link_cv_joao.pdf", cvDetalhe: { skills: ["Recrutamento", "Onboarding", "Gestão de Pessoas"], analise: "João tem sólida experiência em recrutamento. Próxima etapa: Entrevista Técnica." } },
-  { id: 3, nome: "Pedro Rocha", vaga: "Dev Frontend", status: "Em Contato", email: "pedro@email.com", telefone: "(11) 97777-6666", cvUrl: "link_cv_pedro.pdf", cvDetalhe: { skills: ["HTML", "CSS", "Angular"], analise: "Pedro possui experiência com desenvolvimento web, mas sua principal habilidade é Angular, não React. Baixa aderência aos requisitos técnicos da vaga." } },
-  { id: 4, nome: "Ana Costa", vaga: "Dev Frontend", status: "Novo", email: "ana@email.com", telefone: "(11) 95555-4444", cvUrl: "link_cv_ana.pdf", cvDetalhe: { skills: ["React", "Redux", "TypeScript", "Node.js"], analise: "Ana é uma candidata ideal, com experiência em tecnologias adicionais. Atribuir entrevista urgente." } }
-];
+let curriculos = [];
+
+async function carregarCurriculosGestor(){
+  try {
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/gestor/${id_usuario}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar curriculos");
+    curriculos = await resposta.json();
+    console.log("Curriculos carregados: ", curriculos);
+  } catch (err) {
+    console.error(err)
+  }
+}
 
 let vagaIdAtual = null;
 let modalCandidatoId = null;
@@ -94,6 +100,15 @@ async function loadContent(page) {
     return;
   }
 
+  try {
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/gestor/${id_usuario}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar curriculos");
+    curriculos = await resposta.json();
+    console.log("Curriculos carregados: ", curriculos);
+  } catch (err) {
+    console.error(err)
+  }
+
   // const vagasAbertas = vagas.filter(v => v.status === 'Aberta');
   let html = "";
 
@@ -150,7 +165,7 @@ async function loadContent(page) {
   }
 
   if (page === "curriculos") {
-    const candidatosTriagem = curriculos.filter(c => c.status === "Novo" || c.status === "Em Contato");
+    const candidatosTriagem = curriculos.filter(c => c.status === "Novo" || c.status === "Triagem" || c.status === "Entrevista" || c.status === "Rejeitado" || c.status === "Contratado");
 
     html = `
       <div class="crud-container">
@@ -161,7 +176,10 @@ async function loadContent(page) {
           <select id="filterStatusCurriculo" onchange="filterCards('triagemCardGrid','filterStatusCurriculo', 'data-status')">
             <option value="">Todos</option>
             <option value="Novo">Novo</option>
-            <option value="Em Contato">Em Contato</option>
+            <option value="Triagem">Triagem</option>
+            <option value="Entrevista">Entrevista</option>
+            <option value="Rejeitado">Rejeitado</option>
+            <option value="Contratado">Contratado</option>
           </select>
         </div>
 
@@ -169,10 +187,10 @@ async function loadContent(page) {
           ${candidatosTriagem.map(c => `
             <div class="card status-${c.status.toLowerCase().replace(/ /g, '-')}" data-status="${c.status}">
               <div>
-                <h3>${c.nome}</h3>
-                <p><strong>Vaga:</strong> ${c.vaga || "N/A"}</p>
+                <h3>${c.nome_candidato}</h3>
+                <p><strong>Vaga:</strong> ${c.titulo_vaga || "N/A"}</p>
                 <p><strong>Status:</strong> ${c.status}</p>
-                <p><strong>Contato:</strong> ${c.email}</p>
+                <p><strong>Contato:</strong> ${c.email_candidato}</p>
               </div>
               <div class="action-icons">
                   <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id})" class="icon-cards" src="../img/inspecionar-icon.png" alt=">
