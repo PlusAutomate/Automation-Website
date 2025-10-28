@@ -3,7 +3,7 @@
 // =====================================================
 
 let chartInstance = null;
-const API_BASE = "http://localhost:5000/dashboard/rh";
+const API_BASE = "http://98.92.123.94:8000/dashboard/rh";
 
 // --- cache simples (por endpoint) ---
 const CACHE_TTL = 30_000; // 30s
@@ -29,9 +29,9 @@ function setActiveSubmenu(key) {
 
 function setHeader(h2, p) {
   const title = document.querySelector("#graficoContent h2");
-  const desc  = document.querySelector("#graficoContent p");
+  const desc = document.querySelector("#graficoContent p");
   title.textContent = h2;
-  desc.textContent  = p;
+  desc.textContent = p;
 }
 
 function clearKPIs() {
@@ -61,11 +61,11 @@ function injectSkeletonKPIs(n = 2) {
       <h3 style="height:18px;background:#ececec;border-radius:6px;margin:0 0 10px;"></h3>
       <p style="height:22px;background:#f2f2f2;border-radius:6px;width:70%;"></p>
     </div>`;
-  container.innerHTML = Array.from({length:n}).map(() => skel).join("");
+  container.innerHTML = Array.from({ length: n }).map(() => skel).join("");
 }
 
 // começa uma troca de gráfico: limpa chart + coloca skeleton e aborta a chamada anterior
-function beginLoad({submenuKey, title, desc, skeletonCount = 2}) {
+function beginLoad({ submenuKey, title, desc, skeletonCount = 2 }) {
   setActiveSubmenu(submenuKey);
   setHeader(title, desc);
   clearChart();
@@ -158,7 +158,7 @@ async function renderTaxaAprovacao() {
 
   const taxa = Number(data?.taxa_percent ?? 0);
   const aprov = Number(data?.aprovados ?? 0);
-  const aval  = Number(data?.avaliados ?? 0);
+  const aval = Number(data?.avaliados ?? 0);
 
   injectKPIs([
     { titulo: "Taxa", valor: taxa, sufixo: "%" },
@@ -286,7 +286,7 @@ async function renderOrigemCandidatos() {
       labels: data.map(d => d.origem),
       datasets: [{
         data: data.map(d => d.total),
-        backgroundColor: ["#00c4cc","#00a5ad","#008f96","#00797f","#006468"]
+        backgroundColor: ["#00c4cc", "#00a5ad", "#008f96", "#00797f", "#006468"]
       }]
     },
     options: {
@@ -462,16 +462,16 @@ async function renderTaxaAbandono() {
 // =====================================================
 function loadGrafico(tipo) {
   switch (tipo) {
-    case "tempoEtapas":      return renderTempoEtapas();
-    case "taxaAprovacao":    return renderTaxaAprovacao();
-    case "areasRequisitadas":return renderAreasRequisitadas();
-    case "tempoFechamento":  return renderTempoFechamento();
+    case "tempoEtapas": return renderTempoEtapas();
+    case "taxaAprovacao": return renderTaxaAprovacao();
+    case "areasRequisitadas": return renderAreasRequisitadas();
+    case "tempoFechamento": return renderTempoFechamento();
     case "origemCandidatos": return renderOrigemCandidatos();
-    case "urgenciaVagas":    return renderUrgenciaVagas();
-    case "funilProcesso":    return renderFunilProcesso();
-    case "talentosMes":      return renderTalentosMes();
-    case "taxaAbandono":     return renderTaxaAbandono();
-    default:                 return renderTempoEtapas();
+    case "urgenciaVagas": return renderUrgenciaVagas();
+    case "funilProcesso": return renderFunilProcesso();
+    case "talentosMes": return renderTalentosMes();
+    case "taxaAbandono": return renderTaxaAbandono();
+    default: return renderTempoEtapas();
   }
 }
 
