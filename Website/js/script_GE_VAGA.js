@@ -1,6 +1,6 @@
 // /Website/js/script_GE_VAGA.js
 
-const API_BASE = "http://localhost:5000"; // mantenha seu back; aqui só espelhamos
+const API_BASE = "http://98.92.123.94:8000"; // mantenha seu back; aqui só espelhamos
 
 // popula departamentos no select (espelhando a tabela departamentos)
 async function carregarDepartamentos() {
@@ -64,7 +64,7 @@ async function criar_vaga() {
   };
 
   try {
-    const resposta = await fetch("http://localhost:5000/vagas", {
+    const resposta = await fetch("http://98.92.123.94:8000/vagas", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

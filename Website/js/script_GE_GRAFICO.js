@@ -3,7 +3,7 @@
 // =====================================================
 
 let chartInstance = null;
-const API_BASE_G = "http://localhost:5000/dashboard/gestor";
+const API_BASE_G = "http://98.92.123.94:8000/dashboard/gestor";
 
 // ----- Cache simples por endpoint -----
 const CACHE_TTL = 30_000; // 30s
@@ -40,9 +40,9 @@ function setActiveSubmenu(key) {
 
 function setHeader(h2, p) {
   const title = document.querySelector("#graficoContent h2");
-  const desc  = document.querySelector("#graficoContent p");
+  const desc = document.querySelector("#graficoContent p");
   title.textContent = h2;
-  desc.textContent  = p;
+  desc.textContent = p;
 }
 
 function clearKPIs() {
@@ -130,7 +130,7 @@ async function renderStatusVagas() {
   const total = (data || []).reduce((acc, cur) => acc + Number(cur.total || 0), 0);
   injectKPIs(
     (data || []).map(r => ({ titulo: r.status, valor: r.total }))
-    .concat([{ titulo: "Total", valor: total }])
+      .concat([{ titulo: "Total", valor: total }])
   );
 
   if (!data || data.length === 0) { clearChart(); return; }
@@ -143,7 +143,7 @@ async function renderStatusVagas() {
       labels: data.map(r => r.status),
       datasets: [{
         data: data.map(r => r.total),
-        backgroundColor: ["#00c4cc","#2ecc71","#3498db","#9b59b6","#e74c3c"],
+        backgroundColor: ["#00c4cc", "#2ecc71", "#3498db", "#9b59b6", "#e74c3c"],
         borderColor: "#fff",
         borderWidth: 2,
         cutout: "58%"
@@ -172,25 +172,25 @@ async function renderSLAContratacao() {
 
   const data = await getJSONG("sla", { signal });
 
-  const fecharMedio     = data?.fechamento_medio?.fechar_medio_dias ?? 0;
-  const contratarMedio  = data?.contratacao_medio?.contratar_medio_dias ?? 0;
+  const fecharMedio = data?.fechamento_medio?.fechar_medio_dias ?? 0;
+  const contratarMedio = data?.contratacao_medio?.contratar_medio_dias ?? 0;
 
-  const mesesFechar     = data?.fechamento_mensal?.map(m => m.mes) || [];
-  const fechar          = data?.fechamento_mensal?.map(m => Number(m.fechar || 0)) || [];
+  const mesesFechar = data?.fechamento_mensal?.map(m => m.mes) || [];
+  const fechar = data?.fechamento_mensal?.map(m => Number(m.fechar || 0)) || [];
 
-  const mesesContratar  = data?.contratacao_mensal?.map(m => m.mes) || [];
-  const contratar       = data?.contratacao_mensal?.map(m => Number(m.contratar || 0)) || [];
+  const mesesContratar = data?.contratacao_mensal?.map(m => m.mes) || [];
+  const contratar = data?.contratacao_mensal?.map(m => Number(m.contratar || 0)) || [];
 
   clearKPIs();
   injectKPIs([
-    { titulo: "Fechar (média)",    valor: fecharMedio,    sufixo: " dias" },
+    { titulo: "Fechar (média)", valor: fecharMedio, sufixo: " dias" },
     { titulo: "Contratar (média)", valor: contratarMedio, sufixo: " dias" }
   ]);
 
   clearChart();
   const ctx = getCtx();
 
-  const seriesFecharOK    = mesesFechar.length && fechar.some(v => v > 0);
+  const seriesFecharOK = mesesFechar.length && fechar.some(v => v > 0);
   const seriesContratarOK = mesesContratar.length && contratar.some(v => v > 0);
 
   // --- Fallback A: nenhuma série mensal, mas médias > 0
@@ -200,7 +200,7 @@ async function renderSLAContratacao() {
       data: {
         labels: ["Geral"],
         datasets: [
-          { label: "Fechar (dias)",    data: [fecharMedio],    borderColor: "#00c4cc", borderWidth: 2, tension: 0.3, fill: false },
+          { label: "Fechar (dias)", data: [fecharMedio], borderColor: "#00c4cc", borderWidth: 2, tension: 0.3, fill: false },
           { label: "Contratar (dias)", data: [contratarMedio], borderColor: "#e67e22", borderWidth: 2, tension: 0.3, fill: false }
         ]
       },
@@ -275,7 +275,7 @@ async function renderLeadtimeDepto() {
 
   clearKPIs();
   injectKPIs([
-    { titulo: "Departamentos",   valor: data.length },
+    { titulo: "Departamentos", valor: data.length },
     { titulo: "Maior Lead Time", valor: maiorLead, sufixo: " dias" }
   ]);
 
@@ -334,7 +334,7 @@ async function renderUrgenciaCriticas() {
       datasets: [{
         label: "Vagas",
         data: data.map(u => u.total),
-        backgroundColor: ["#2ecc71","#f1c40f","#e74c3c"],
+        backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"],
         borderRadius: 10,
         maxBarThickness: 44
       }]
@@ -396,12 +396,12 @@ async function renderFechamentosMes() {
 // =====================================================
 function loadGraficoGestor(tipo) {
   switch (tipo) {
-    case "statusVagas":      return renderStatusVagas();
-    case "slaContratacao":   return renderSLAContratacao();
-    case "leadtimeDepto":    return renderLeadtimeDepto();
+    case "statusVagas": return renderStatusVagas();
+    case "slaContratacao": return renderSLAContratacao();
+    case "leadtimeDepto": return renderLeadtimeDepto();
     case "urgenciaCriticas": return renderUrgenciaCriticas();
-    case "fechamentosMes":   return renderFechamentosMes();
-    default:                 return renderStatusVagas();
+    case "fechamentosMes": return renderFechamentosMes();
+    default: return renderStatusVagas();
   }
 }
 window.loadGraficoGestor = loadGraficoGestor; // chamado pelo HTML
