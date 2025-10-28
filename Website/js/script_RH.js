@@ -101,9 +101,11 @@ async function getVagaMetrics(vagaId) {
     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
     const candidatos = await response.json();
 
-    const ativos = candidatos.filter(c => ["Novo", "Em Contato", "Entrevista Técnica"].includes(c.status));
+    const ativos = candidatos.filter(c => ["Novo", "Triagem", "Entrevista"].includes(c.status));
     const novos = ativos.filter(c => c.status === "Novo").length;
-    const emContato = ativos.filter(c => ["Em Contato", "Entrevista Técnica"].includes(c.status)).length;
+    console.log("Ativos: ", novos)
+    const emContato = ativos.filter(c => ["Entrevista", "Triagem"].includes(c.status)).length;
+    console.log("Em contato: ", emContato)
     const totalContratados = candidatos.filter(c => c.status === "Contratado").length;
 
     return { totalAtivos: ativos.length, novos, emContato, totalContratados };
@@ -130,7 +132,7 @@ async function aprovarVaga(id) {
       vagas = vagas.map(v => v.id_vaga === id ? { ...v, status: "Aberta" } : v);
       loadContent("aprovarVagas"); // <-- substituído renderPage
     } else {
-      alert(data.erro || "Erro ao aprovar a vaga.");
+      // alert(data.erro || "Erro ao aprovar a vaga.");
     }
   } catch (error) {
     console.error(error);
@@ -148,6 +150,7 @@ async function loadContent(page) {
     const resposta = await fetch("http://localhost:5000/vagas");
     if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
     vagas = await resposta.json();
+    console.log("Vagas encontradas: ", vagas)
   } catch (erro) {
     console.error("Erro ao buscar vagas:", erro);
     mainContent.innerHTML = `<div style="padding:20px; color:red;">Erro ao carregar vagas. Verifique o servidor.</div>`;
@@ -188,7 +191,6 @@ async function loadContent(page) {
               </p>` : ""}
           </div>
           <div class="action-icons">
-            <img title="Editar detalhes RH" onclick="editarDetalhesVagaRH(${v.id_vaga})" class="icon-cards" src="../img/edit-icon.png" alt="">
             <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
           `<button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
@@ -232,7 +234,7 @@ async function loadContent(page) {
             <div class="card status-analise">
               <div>
                 <h3>${v.titulo}</h3>
-                <p><strong>Gestor:</strong> ${v.gestor || "N/A"}</p>
+                <p><strong>Gestor:</strong> ${v.id_usuario || "N/A"}</p>
                 <p class="descricao">Requisitos: ${v.requisitos || "Não especificado."}</p>
               </div>
               <div class="action-icons" style="justify-content: flex-end;">
@@ -275,7 +277,7 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
-                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
+                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
                   <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="../img/mover-icon.png" alt="">
                   <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/lixo-icon.png" alt="">
               </div>
@@ -353,106 +355,136 @@ async function loadContent(page) {
 
 // FUNÇÕES DE VAGA, CANDIDATO E MODAIS
 
-function listarCandidatosPorVaga(tituloVaga, idVaga) {
+async function listarCandidatosPorVaga(tituloVaga, idVaga) {
   vagaIdAtual = idVaga;
-  const candidatosDaVaga = curriculos.filter(c => c.vaga === tituloVaga);
 
-  let htmlCandidatos = candidatosDaVaga.map(c => {
-    const statusClass = c.status.toLowerCase().replace(/ /g, '-');
+  try {
+    // Faz a requisição ao endpoint Flask
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/vaga/${idVaga}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar candidatos da vaga");
 
-    return `
-            <div class="card status-${statusClass}" data-status="${c.status}">
-                <div>
-                    <h3>${c.nome}</h3>
-                    <p><strong>Status:</strong> ${c.status}</p>
-                    <p><strong>Contato:</strong> ${c.email}</p>
-                </div>
-                <div class="action-icons" style="justify-content: flex-end;">
-                    ${c.status !== 'Contratado' ?
-        `<button class="btn-ghost" title="Mudar Status" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="abrirModalMudarStatus(${c.id}, '${c.nome}', '${c.status}', '${tituloVaga}')">Status</button>`
-        : ''}
-                </div>
-            </div>
-        `;
-  }).join("");
+    const candidatosDaVaga = await resposta.json();
+    console.log("Candidatos da vaga:", candidatosDaVaga);
 
-  const html = `
+    // Gera o HTML de cada candidato
+    let htmlCandidatos = candidatosDaVaga.map(c => {
+      const statusClass = c.status ? c.status.toLowerCase().replace(/ /g, '-') : 'desconhecido';
+
+      return `
+        <div class="card status-${statusClass}" data-status="${c.status}">
+          <div>
+            <h3>${c.nome}</h3>
+            <p><strong>Status:</strong> ${c.status}</p>
+            <p><strong>Contato:</strong> ${c.email}</p>
+            ${c.telefone ? `<p><strong>Telefone:</strong> ${c.telefone}</p>` : ""}
+          </div>
+          <div class="action-icons" style="justify-content: flex-end;">
+            ${c.status !== 'Contratado' ?
+          `<button class="btn-ghost" title="Mudar Status"
+                  style="background:#00c4cc; color:white; border-color:#5bc0de;"
+                  onclick="abrirModalMudarStatus(${c.id_candidato}, '${c.nome}', '${c.status}', '${tituloVaga}', ${c.id_vaga})">
+                  Status
+              </button>`
+          : ''}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Monta a tela
+    const html = `
       <div class="crud-container">
-        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar Vagas</a> > Candidatos: ${tituloVaga}</div>
+        <div class="breadcrumb">
+          Vagas > <a onclick="loadContent('listarVagas')">Listar Vagas</a> > Candidatos: ${tituloVaga}
+        </div>
         <h2>Candidatos Atribuídos: ${tituloVaga}</h2>
-        <p>Lista de currículos para esta vaga. Total: ${candidatosDaVaga.length}</p>
-        
+        <p>Lista de candidatos vinculados a esta vaga. Total: ${candidatosDaVaga.length}</p>
+
         <div class="card-grid" id="candidatosVagaGrid" style="margin-top: 20px;">
-            ${htmlCandidatos}
+          ${htmlCandidatos || "<p>Nenhum candidato encontrado.</p>"}
         </div>
-        
+
         <div style="margin-top:20px;">
-            <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar para Vagas</button>
+          <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar para Vagas</button>
         </div>
-      </div>`;
-  document.getElementById("mainContent").innerHTML = html;
+      </div>
+    `;
+
+    document.getElementById("mainContent").innerHTML = html;
+
+  } catch (err) {
+    console.error("Erro ao listar candidatos por vaga:", err);
+    document.getElementById("mainContent").innerHTML = `
+      <div style="padding:20px; color:red;">Erro ao carregar candidatos da vaga.</div>
+    `;
+  }
 }
 
-function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga) {
+function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga, idVaga) {
   modalCandidatoId = idCandidato;
-  const c = curriculos.find(x => x.id === idCandidato);
+  vagaIdAtual = idVaga;
 
+  // opções compatíveis com o ENUM do banco
   let opcoes = [
-    { value: "Em Contato", label: "Em Contato (Triagem Inicial)" },
-    { value: "Entrevista Técnica", label: "Entrevista Técnica (Próxima Fase)" },
-    { value: "Reprovado", label: "Reprovado (Desclassificar)" },
-    { value: "Contratado", label: "Contratado (Fechar Vaga)" }
+    { value: "Triagem", label: "Triagem (Em análise inicial)" },
+    { value: "Entrevista", label: "Entrevista (Fase Técnica)" },
+    { value: "Aprovado", label: "Aprovado (Aguardando Contratação)" },
+    { value: "Contratado", label: "Contratado (Fechar Vaga)" },
+    { value: "Rejeitado", label: "Rejeitado (Desclassificado)" }
   ].filter(opt => opt.value !== statusAtual);
 
   const html = `
-        <h3>Atualizar Status de: ${nomeCandidato}</h3>
-        <p>Vaga: <strong>${tituloVaga}</strong> | Status Atual: <strong>${statusAtual}</strong></p>
-        <label class="field-label" style="margin-top:10px;">Novo Status no Pipeline:</label>
-        <select id="selectNovoStatus" class="field-value">
-          ${opcoes.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("")}
-        </select>
-        ${c.status === 'Reprovado' || c.status === 'Contratado' ? '' : `
-          <div class="field-group full-width" style="margin-top: 15px;">
-            <label class="field-label">Observações (Opcional)</label>
-            <textarea id="modalObservacoes" class="field-value" rows="2"></textarea>
-          </div>
-        `}
-        <div style="margin-top:15px; text-align:right;">
-            <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar</button>
-            <button class="btn-ghost" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="confirmarMudarStatus('${tituloVaga}')">Confirmar Mudança</button>
-        </div>`;
+    <h3>Atualizar Status de: ${nomeCandidato}</h3>
+    <p>Vaga: <strong>${tituloVaga}</strong> | Status Atual: <strong>${statusAtual}</strong></p>
+
+    <label class="field-label" style="margin-top:10px;">Novo Status no Pipeline:</label>
+    <select id="selectNovoStatus" class="field-value">
+      ${opcoes.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("")}
+    </select>
+
+    <div class="field-group full-width" style="margin-top: 15px;">
+      <label class="field-label">Observações (Opcional)</label>
+      <textarea id="modalObservacoes" class="field-value" rows="2"></textarea>
+    </div>
+
+    <div style="margin-top:15px; text-align:right;">
+      <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar</button>
+      <button class="btn-ghost" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="confirmarMudarStatus(${idCandidato}, ${idVaga}, '${tituloVaga}')">Confirmar Mudança</button>
+    </div>
+  `;
+
   abrirModalCustom(html);
 }
 
-function confirmarMudarStatus(tituloVaga) {
-  const novoStatus = document.getElementById('selectNovoStatus').value;
-  const c = curriculos.find(x => x.id === modalCandidatoId);
-  let v = vagas.find(x => x.titulo === tituloVaga);
+async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
+  const novoStatus = document.getElementById("selectNovoStatus").value;
+  const observacoes = document.getElementById("modalObservacoes").value;
 
-  if (c) {
-    c.status = novoStatus;
+  try {
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: novoStatus, observacoes })
+    });
 
-    if (novoStatus === "Contratado") {
-      if (v) v.status = "Fechada";
-      alert(`Sucesso! Candidato ${c.nome} contratado. A vaga '${tituloVaga}' foi marcada como Fechada.`);
-    } else if (novoStatus === "Reprovado") {
-      alert(`Candidato ${c.nome} reprovado. (TODO: Mover dados detalhados para o Banco de Talentos).`);
-    } else {
-      alert(`Status de ${c.nome} alterado para: ${novoStatus}.`);
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(dados.erro || "Erro ao atualizar status");
     }
-  }
 
-  fecharModalCustom();
+    console.log(`Status atualizado para "${novoStatus}" com sucesso!`);
+    fecharModalCustom();
 
-  // Adiciona uma verificação para garantir que a vaga foi encontrada antes de chamar a listagem
-  if (v) {
-    // Volta para a lista de candidatos da vaga atualizada
-    listarCandidatosPorVaga(tituloVaga, v.id_vaga);
-  } else {
-    // Se não encontrar a vaga, volta para a lista principal
-    loadContent('listarVagas');
+    // recarrega a lista de candidatos dessa vaga
+    listarCandidatosPorVaga(tituloVaga, idVaga);
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status:", erro);
+    alert("Falha ao atualizar o status. Tente novamente.");
   }
 }
+
 
 function abrirModalReprovacao(id) {
   modalVagaId = id;
@@ -753,59 +785,52 @@ function moverParaTalentos(id) {
   }
 }
 // A função principal de exibição do currículo
-async function exibirCurriculo(id, rodarIA = false) {
-  const c = candidato_triagem.find(x => x.id === id);
-  const vaga = vagas.find(v => v.id_vaga === c.id_vaga);
+async function exibirCurriculo(idCandidato, rodarIA = false) {
+  try {
+    // 1. Busca os dados do candidato no backend
+    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/candidato/${idCandidato}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar dados do candidato");
+    const candidatos = await resposta.json();
 
-  // 1. Inicialização do Estado da IA no currículo
-  if (!c.iaResultado) {
-    c.iaResultado = { matchScore: 'N/A', analiseIA: 'Clique no botão abaixo para rodar a análise de IA.', iaRodada: false };
-  }
+    // 2. Pega o primeiro resultado (assumindo que id_candidato é único)
+    const c = candidatos[0];
+    if (!c) throw new Error("Candidato não encontrado");
 
-  // 2. Lógica para definir os parâmetros da IA
-  let requisitosParaAnalise = "";
-  let nomeVagaParaIA = "Candidato em Triagem (Potencial Geral)";
+    // 3. Pega a vaga associada
+    const vaga = {
+      skills: c.vagaSkills || [], // skills da vaga
+      titulo: c.titulo_vaga
+    };
 
-  if (vaga) {
-    requisitosParaAnalise = vaga.requisitos;
-    nomeVagaParaIA = c.vaga;
-  } else if (c.vaga && c.vaga !== 'N/A') {
-    requisitosParaAnalise = "N/A (Vaga não encontrada)";
-    nomeVagaParaIA = c.vaga;
-  } else {
-    requisitosParaAnalise = "N/A";
-    nomeVagaParaIA = "Área Geral/Banco de Talentos";
-  }
-
-  // 3. Chama a IA apenas se rodarIA for true
-  if (rodarIA) {
-    // Estado de Carregamento
-    let carregandoResultado = { matchScore: '...', analiseIA: 'Aguardando análise da IA (Gemini)...', iaRodada: false };
-    // Renderiza o HTML com estado de "carregando"
-    let loadingHtml = montarCurriculoHTML(c, vaga, carregandoResultado, nomeVagaParaIA);
-    document.getElementById("mainContent").innerHTML = loadingHtml;
-
-    // Exibe status de carregamento no botão
-    const iaButtonArea = document.getElementById('iaButtonArea');
-    if (iaButtonArea) {
-      iaButtonArea.innerHTML = '<span style="color: #00c4cc; font-weight: bold;"> Rodando análise... Aguarde.</span>';
+    // Inicializa estado da IA se não existir
+    if (!c.iaResultado) {
+      c.iaResultado = { matchScore: 'N/A', analiseIA: 'Clique no botão abaixo para rodar a análise de IA.', iaRodada: false };
     }
 
-    // Obtém o resultado da IA (VIA FETCH PARA O SEU app.py)
-    let resultado = await fetchMatchScoreIA(c.cvDetalhe.skills, requisitosParaAnalise, nomeVagaParaIA);
+    // 4. Chama a IA se rodarIA = true
+    if (rodarIA) {
+      let carregandoResultado = { matchScore: '...', analiseIA: 'Aguardando análise da IA (Gemini)...', iaRodada: false };
+      document.getElementById("mainContent").innerHTML = montarCurriculoHTML(c, vaga, carregandoResultado, c.titulo_vaga);
 
-    // Salva o resultado no objeto do currículo
-    c.iaResultado = {
-      matchScore: resultado.matchScore,
-      analiseIA: resultado.analiseIA,
-      iaRodada: true // Assume que rodou se chegou até aqui (mesmo que com erro)
-    };
+      // Fetch para análise da IA
+      let resultado = await fetchMatchScoreIA(c.cvDetalhe.skills, vaga.skills, c.titulo_vaga);
+      // Salva resultado no objeto do candidato
+      c.iaResultado = {
+        matchScore: resultado.matchScore,
+        analiseIA: resultado.analiseIA,
+        iaRodada: true
+      };
+    }
+
+    // 5. Renderiza o HTML final
+    document.getElementById("mainContent").innerHTML = montarCurriculoHTML(c, vaga, c.iaResultado, c.titulo_vaga);
+
+  } catch (error) {
+    console.error("Erro ao exibir currículo do candidato:", error);
+    document.getElementById("mainContent").innerHTML = `<div style="color:red; padding:20px;">Erro ao buscar o candidato: ${error.message}</div>`;
   }
-
-  // 4. Renderiza o HTML com o estado final (ou carregado)
-  let html = montarCurriculoHTML(c, vaga, c.iaResultado, nomeVagaParaIA);
-  document.getElementById("mainContent").innerHTML = html;
 }
+
 
 // Função auxiliar para construir o HTML (AGORA COM BOTÃO DE IA)
 function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
@@ -813,19 +838,19 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
   const isReady = iaResultado.iaRodada;
   const scoreColor = iaResultado.matchScore >= 80 ? '#28a745' : iaResultado.matchScore >= 50 ? '#ffc107' : '#e74c3c';
 
-  const requisitosInfo = vaga ? vaga.requisitos : (c.vaga && c.vaga !== 'N/A' ? `Vaga "${c.vaga}" não encontrada na base.` : 'Candidato sem vaga atribuída.');
+  const requisitosInfo = vaga ? vaga.skills : (c.vaga && c.vaga !== 'N/A' ? `Vaga "${c.vaga}" não encontrada na base.` : 'Candidato sem vaga atribuída.');
   const matchScoreDisplay = isReady ? iaResultado.matchScore + '%' : (iaResultado.matchScore === '...' ? '...' : 'N/A');
   const analiseIADisplay = isReady ? iaResultado.analiseIA : 'Clique no botão abaixo para rodar a análise de IA.';
 
-  const buttonHtml = `<button class="btn-ghost" onclick="exibirCurriculo(${c.id}, true)" style="background:#00c4cc; color:white; font-weight: bold;">
+  const buttonHtml = `<button class="btn-ghost" onclick="exibirCurriculo(${c.id_candidato}, true)" style="background:#00c4cc; color:white; font-weight: bold;">
         Rodar Análise de IA (Gemini)
     </button>`;
 
   return `<div class="crud-container"><div class="breadcrumb">Candidatos > <a onclick="loadContent('triagem')">Triagem</a> > Detalhes do Candidato</div><h2>Detalhes: ${c.nome}</h2><div class="detail-form-grid">
-        <div class="field-group"><label class="field-label">Vaga Atribuída</label><input class="field-value read-only" value="${c.vaga || 'N/A'}" disabled></div>
+        <div class="field-group"><label class="field-label">Vaga Atribuída</label><input class="field-value read-only" value="${c.titulo_vaga || 'N/A'}" disabled></div>
         <div class="field-group"><label class="field-label">Status Atual</label><input class="field-value read-only" value="${c.status}" disabled></div>
         <div class="field-group"><label class="field-label">Email</label><input class="field-value read-only" value="${c.email}" disabled></div>
-        <div class="field-group"><label class="field-label">Telefone</label><input class="field-value read-only" value="${c.telefone}" disabled></div>
+        <div class="field-group"><label class="field-label">Telefone</label><input class="field-value read-only" value="${c.candidato_telefone}" disabled></div>
     </div>
     
     <div class="analysis-block-ia" style="margin-top:20px; padding: 20px; border: 1px solid #ddd; border-radius: 5px; background-color: #f8f9fa;">
@@ -860,23 +885,23 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
                 <button class="btn-ghost edit-skills-btn" onclick="toggleSkillEditMode(${c.id})">Editar Habilidades</button>
             </div>
             
-            <div class="skills-list" id="skillsView-${c.id}">
+            <div class="skills-list" id="skillsView-${c.id_candidato}">
                 ${c.cvDetalhe.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
             </div>
             
-            <div class="skills-edit-area hidden" id="skillsEdit-${c.id}">
-                <textarea id="skillsTextarea-${c.id}" class="field-value" rows="2" placeholder="Separe as habilidades por vírgula (Ex: React, Node.js, Inglês Avançado)">${c.cvDetalhe.skills.join(', ')}</textarea>
+            <div class="skills-edit-area hidden" id="skillsEdit-${c.id_candidato}">
+                <textarea id="skillsTextarea-${c.id_candidato}" class="field-value" rows="2" placeholder="Separe as habilidades por vírgula (Ex: React, Node.js, Inglês Avançado)">${c.cvDetalhe.skills.join(', ')}</textarea>
                 <p style="font-size: 12px; color: #777; margin-top: 5px;">Separe as habilidades com vírgulas.</p>
             </div>
         </div>
         
         <div class="full-width" style="margin-top: 20px;">
             <h4 style="margin-bottom: 5px;">Resumo / Análise RH:</h4>
-            <textarea id="analiseRHEdit-${c.id}" class="field-value" rows="4">${c.cvDetalhe.analise}</textarea>
+            <textarea id="analiseRHEdit-${c.id_candidato}" class="field-value" rows="4">${c.cvDetalhe.analise}</textarea>
         </div>
     </div>
     <div style="margin-top:20px;">
-        <button class="btn-ghost" onclick="salvarAnaliseCurriculo(${c.id})" style="background:#28a745; color:white; border-color:#28a745;">Salvar Análise</button>
+        <button class="btn-ghost" onclick="salvarAnaliseCurriculo(${c.id_candidato})" style="background:#28a745; color:white; border-color:#28a745;">Salvar Análise</button>
         <button class="btn-ghost" onclick="loadContent('triagem')">⬅ Voltar</button>
         <a href="${c.cvUrl}" target="_blank" class="btn-ghost" style="background:#00c4cc; color:white; text-decoration:none; padding:10px; border-color:#00c4cc; margin-left: 10px;">Visualizar CV Original</a>
     </div>
@@ -963,39 +988,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
-  // A URL do seu servidor Python (Flask)
   const apiURL = 'http://127.0.0.1:5001/api/match-score';
 
   try {
+    // Caso venha como objeto (ex: vaga.skills)
+    const cleanCandidatoSkills = Array.isArray(candidatoSkills)
+      ? candidatoSkills.map(s => s.trim()).filter(Boolean)
+      : candidatoSkills?.skills
+        ? candidatoSkills.skills.map(s => s.trim()).filter(Boolean)
+        : [];
+
+    const cleanVagaRequisitos = Array.isArray(vagaRequisitos)
+      ? vagaRequisitos.map(s => s.trim()).filter(Boolean)
+      : vagaRequisitos?.skills
+        ? vagaRequisitos.skills.map(s => s.trim()).filter(Boolean)
+        : [];
+
+    console.log("Skills enviadas à IA:", {
+      candidato: cleanCandidatoSkills,
+      vaga: cleanVagaRequisitos,
+      nomeVaga
+    });
+
     const response = await fetch(apiURL, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        skills: candidatoSkills,
-        requisitos: vagaRequisitos,
-        nomeVaga: nomeVaga // Parâmetro necessário para o seu app.py
+        skills: cleanCandidatoSkills,
+        requisitos: cleanVagaRequisitos,
+        nomeVaga
       })
     });
 
     if (!response.ok) {
-      // Se a resposta HTTP falhar (ex: 400 Bad Request)
-      const errorData = await response.json().catch(() => ({ analise_ia: `Erro HTTP ${response.status}.` }));
-      throw new Error(`Erro ao buscar Match Score. Status: ${response.status}. Detalhe: ${errorData.analise_ia}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        `Erro ao buscar Match Score. Status: ${response.status}. Detalhe: ${errorData.analise_ia || 'Desconhecido'}`
+      );
     }
 
     const data = await response.json();
     return {
-      matchScore: data.match_score || 0,
-      analiseIA: data.analise_ia || "Análise da IA não disponível.",
+      matchScore: data.match_score ?? 0,
+      analiseIA: data.analise_ia ?? "Análise da IA não disponível."
     };
-
   } catch (error) {
     console.error("Erro ao buscar Match Score da IA:", error);
     return {
-      matchScore: 'N/A', // Mude para 'N/A' para indicar que não rodou
-      analiseIA: `Falha na conexão com o servidor de IA (Verifique se o 'gemini.py' está rodando na porta 5000). Erro: ${error.message}`,
+      matchScore: 'N/A',
+      analiseIA: `Falha na conexão com o servidor de IA (verifique se o 'gemini.py' está rodando na porta 5001). Erro: ${error.message}`
     };
   }
 }
