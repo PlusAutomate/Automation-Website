@@ -16,17 +16,6 @@ async function carregarVagasGestor() {
 
 let curriculos = [];
 
-async function carregarCurriculosGestor(){
-  try {
-    const resposta = await fetch(`http://localhost:5000/processo-seletivo/gestor/${id_usuario}`);
-    if (!resposta.ok) throw new Error("Erro ao buscar curriculos");
-    curriculos = await resposta.json();
-    console.log("Curriculos carregados: ", curriculos);
-  } catch (err) {
-    console.error(err)
-  }
-}
-
 let vagaIdAtual = null;
 let modalCandidatoId = null;
 let modalVagaId = null;
@@ -53,9 +42,11 @@ async function getVagaMetrics(vagaId) {
     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
     const candidatos = await response.json();
 
-    const ativos = candidatos.filter(c => ["Novo", "Em Contato", "Entrevista Técnica"].includes(c.status));
+    const ativos = candidatos.filter(c => ["Novo", "Triagem", "Entrevista"].includes(c.status));
     const novos = ativos.filter(c => c.status === "Novo").length;
-    const emContato = ativos.filter(c => ["Em Contato", "Entrevista Técnica"].includes(c.status)).length;
+    console.log("Ativos: ", novos)
+    const emContato = ativos.filter(c => ["Entrevista", "Triagem"].includes(c.status)).length;
+    console.log("Em contato: ", emContato)
     const totalContratados = candidatos.filter(c => c.status === "Contratado").length;
 
     return { totalAtivos: ativos.length, novos, emContato, totalContratados };
@@ -94,6 +85,7 @@ async function loadContent(page) {
     const resposta = await fetch(`http://localhost:5000/vagas/gestor/${id_usuario}`);
     if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
     vagas = await resposta.json();
+    console.log("Vagas carregadas: ", vagas);
   } catch (erro) {
     console.error("Erro ao buscar vagas:", erro);
     mainContent.innerHTML = `<div style="padding:20px; color:red;">Erro ao carregar vagas. Verifique o servidor.</div>`;
@@ -133,7 +125,6 @@ async function loadContent(page) {
               </p>` : ""}
           </div>
           <div class="action-icons">
-            <img title="Editar detalhes RH" onclick="editarDetalhesVagaRH(${v.id_vaga})" class="icon-cards" src="../img/edit-icon.png" alt="">
             <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
           `<button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
@@ -154,7 +145,7 @@ async function loadContent(page) {
             <option value="">Todos os Status</option>
             <option value="Aberta">Abertas</option>
             <option value="Em Análise">Em Análise</option>
-            <option value="Fechada">Fechadas</option>
+            <option value="Fechada">Fechada</option>
           </select>
         </div>
         <div class="card-grid" id="vagaCard">
@@ -204,6 +195,7 @@ async function loadContent(page) {
 
   mainContent.innerHTML = html;
 }
+
 
 async function exibirCurriculo(id_candidato) {
   try {
@@ -323,7 +315,7 @@ async function verDetalhesVagaGestor(id_vaga) {
 
     const html = `
       <div class="crud-container">
-        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar</a> > Especificações do Gestor</div>
+        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar</a> > Especificações da vaga</div>
         <h2>Especificações da Vaga (${v.titulo})</h2>
         <div class="detail-form-grid">
           <p class="descricao" style="color:red;">Para editar campo, entrar em contato com o gestor</p>
@@ -396,11 +388,6 @@ async function verDetalhesVagaGestor(id_vaga) {
           <div class="field-group">
             <label class="field-label">Prazo</label>
             <input type="date" class="field-value read-only" value="${v.prazo ?? ''}" disabled>
-          </div>
-
-          <div class="field-group full-width">
-            <label class="field-label">Skills</label>
-            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
           </div>
 
           <div class="field-group full-width">
