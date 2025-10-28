@@ -8,26 +8,41 @@ from google.genai.errors import APIError
 import json
 
 app = Flask(__name__)
-# Libera CORS para o frontend (localhost:5500)
-CORS(app, resources={r"/*": {"origins": ["http://127.0.0.1:61528", "http://localhost:61528"]}})
+
+# ✅ Libera CORS para QUALQUER origem (portas dinâmicas, localhost, 127.0.0.1 etc.)
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
+
+# 🔧 Garante que até respostas OPTIONS (preflight) incluam os cabeçalhos
+
+
+@app.after_request
+def aplicar_cors(response):
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
+    return response
+
 
 # --- CONFIGURAÇÃO DA API KEY DO GEMINI ---
-# CHAVE VIA https://aistudio.google.com/api-keys
 client = genai.Client(api_key="AIzaSyAkcPfoz-zpTYZZ5csNpbKp3R_NPtKbeZQ")
 
 
 # Função para gerar o Match Score usando o Gemini
 def get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga):
     """Envia dados para o modelo Gemini e extrai o score e a análise."""
-    
+
+    # 🔧 Garante que vaga_requisitos seja sempre string, mesmo que venha lista
+    if isinstance(vaga_requisitos, list):
+        vaga_requisitos = ", ".join(vaga_requisitos)
+    elif not vaga_requisitos:
+        vaga_requisitos = "N/A"
+
     # Prepara o prompt (instrução) para o modelo Gemini
-    # PROMPT OTIMIZADO: Lida com a possibilidade de análise para uma área, 
-    # não uma vaga específica (Banco de Talentos)
-    if not vaga_requisitos or vaga_requisitos.lower() == 'n/a':
-        prompt_context = f"A análise é para o candidato se encaixar na área de **{nome_vaga}** (sem requisitos específicos de vaga). Fale sobre a aderência geral à área e seu potencial."
+    if vaga_requisitos.lower() == "n/a":
+        prompt_context = f"A análise é para o candidato se encaixar na área de **{nome_vaga}** (sem requisitos específicos de vaga)."
     else:
         prompt_context = f"A análise é para a vaga **{nome_vaga}** com os requisitos listados."
-    
+
     prompt = f"""
     Você é um Analista de Recrutamento e Seleção de IA. Sua tarefa é comparar as HABILIDADES de um candidato com os REQUISITOS de uma vaga/área e fornecer um Match Score e uma breve Análise.
     
@@ -53,10 +68,10 @@ def get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga):
             model='gemini-2.5-flash',
             contents=prompt,
             config=genai.types.GenerateContentConfig(
-                response_mime_type="application/json", 
+                response_mime_type="application/json",
             ),
         )
-        
+
         return json.loads(response.text)
 
     except APIError as e:
@@ -71,18 +86,20 @@ def get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga):
 def match_score_endpoint():
     """Endpoint da API chamado pelo JavaScript."""
     data = request.json
-    
+
     candidato_skills = data.get('skills', [])
     vaga_requisitos = data.get('requisitos', "")
-    nome_vaga = data.get('nomeVaga', "Área Geral") 
-    
+    nome_vaga = data.get('nomeVaga', "Área Geral")
+
     if not candidato_skills:
         return jsonify({"match_score": 0, "analise_ia": "Erro: Habilidades do candidato não fornecidas."}), 400
 
     # Chama a função que usa o Gemini
-    resultado = get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga)
-    
+    resultado = get_match_analysis(
+        candidato_skills, vaga_requisitos, nome_vaga)
+
     return jsonify(resultado)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
