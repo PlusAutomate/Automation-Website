@@ -294,10 +294,18 @@ async function loadContent(page) {
         <h2>Upload de Currículos</h2>
         <p class="descricao">Suba currículos de fontes externas e atribua a uma vaga.</p>
         <div class="detail-form-grid">
-          <div class="field-group"><label class="field-label">Nome do Candidato</label><input type="text" id="nomeCandidato" class="field-value"></div>
-          <div class="field-group"><label class="field-label">Email do Candidato</label><input type="email" id="emailCandidato" class="field-value"></div>
-          <div class="field-group"><label class="field-label">Telefone</label><input type="tel" id="telefoneCandidato" class="field-value"></div>
           <div class="field-group"><label class="field-label">Vaga de Atribuição</label>
+          <div class="form-group">
+                <label for="tipoVaga">Upload RH</label>
+                <select id="tipoVaga" required>
+                  <option value="">Selecione</option>
+                  <option value="Upload RH">Upload RH</option>
+                  <option value="Indicação">Indicação</option>
+                  <option value="LinkedIn">LinkedIn</option>
+                  <option value="Plataforma">Plataforma</option>
+                  <option value="Outro">Outro</option>
+          </select>
+        </div>
             <select id="vagaCandidato" class="field-value">
               <option value="">(Manter em Triagem - Status: Novo)</option>
               ${vagasAbertas.map(v => `<option value="${v.titulo}">${v.titulo}</option>`).join("")}
