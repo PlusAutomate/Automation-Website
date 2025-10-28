@@ -275,7 +275,6 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
-                  <img title="Atribuir candidato" onclick="abrirModalAtribuicao(${c.id_curriculo}, '${c.nome}')" class="icon-cards" src="../img/atribuir-icon.png" alt="">
                   <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
                   <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="../img/mover-icon.png" alt="">
                   <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/lixo-icon.png" alt="">
