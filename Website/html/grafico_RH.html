@@ -84,5 +84,20 @@
 
     <script src="../js/script_RH_GRAFICO.js"></script>
 
+    
+
 </body>
 </html>
+
+<script>
+  const usuario = JSON.parse(sessionStorage.getItem('usuario'))
+
+  if (usuario) {
+    document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
+    document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
+    document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
+  } else {
+    document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
+
+  }
+</script>
