@@ -200,11 +200,11 @@ async function loadContent(page) {
 async function exibirCurriculo(id_candidato) {
   try {
     // Busca os dados da vaga direto do backend
-    const resposta = await fetch(`http://localhost:5000/candidato/${id_candidato}`);
+    const resposta = await fetch(`http://localhost:5000/candidatos/${id_candidato}`);
     if (!resposta.ok) throw new Error("Erro ao buscar detalhes da vaga");
 
     const c = await resposta.json();
-
+    console.log("Resposta: ", c)
     const html = `
       <div class="crud-container">
         <div class="breadcrumb">Candidatos > Curriculos</div>
@@ -212,79 +212,25 @@ async function exibirCurriculo(id_candidato) {
         <div class="detail-form-grid">
 
           <div class="field-group">
-            <label class="field-label">Status Atual</label>
-            <input class="field-value read-only" value="${v.status ?? ''}" disabled>
+            <label class="field-label">Email: </label>
+            <input class="field-value read-only" value="${c.email ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Telefone: </label>
+            <input class="field-value read-only" value="${c.telefone ?? ''}" disabled>
+          </div>
+
+          <div class="field-group">
+            <label class="field-label">Origem: </label>
+            <input class="field-value read-only" value="${c.origem ?? ''}" disabled>
           </div>
 
           <div class="field-group full-width">
             <label class="field-label">Requisitos Técnicos</label>
-            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
+            <textarea class="field-value read-only" rows="3" disabled>${c.skill ?? ''}</textarea>
           </div>
 
-          <div class="field-group full-width">
-            <label class="field-label">Descrição Resumida</label>
-            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Título</label>
-            <input class="field-value read-only" value="${v.titulo ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Departamento</label>
-            <input class="field-value read-only" value="${v.departamento_nome ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Localização</label>
-            <input class="field-value read-only" value="${v.localizacao ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Cidade</label>
-            <input class="field-value read-only" value="${v.cidade ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Tipo de Contratação</label>
-            <input class="field-value read-only" value="${v.tipo_contratacao ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Nível</label>
-            <input class="field-value read-only" value="${v.nivel_vaga ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Motivo</label>
-            <input class="field-value read-only" value="${v.motivo ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Nº Vagas</label>
-            <input type="number" class="field-value read-only" value="${v.numero_vagas ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Urgência</label>
-            <input class="field-value read-only" value="${v.urgencia ?? ''}" disabled>
-          </div>
-
-          <div class="field-group">
-            <label class="field-label">Prazo</label>
-            <input type="date" class="field-value read-only" value="${v.prazo ?? ''}" disabled>
-          </div>
-
-          <div class="field-group full-width">
-            <label class="field-label">Skills</label>
-            <textarea class="field-value read-only" rows="3" disabled>${v.skills ?? ''}</textarea>
-          </div>
-
-          <div class="field-group full-width">
-            <label class="field-label">Justificativa</label>
-            <textarea class="field-value read-only" rows="4" disabled>${v.descricao ?? ''}</textarea>
-          </div>
         </div>
 
         <div style="margin-top:20px;">
@@ -418,106 +364,169 @@ async function verDetalhesVagaGestor(id_vaga) {
 
 // FUNÇÕES DE VAGA, CANDIDATO E MODAIS
 
-function listarCandidatosPorVaga(tituloVaga, idVaga) {
+async function listarCandidatosPorVaga(tituloVaga, idVaga) {
   vagaIdAtual = idVaga;
-  const candidatosDaVaga = curriculos.filter(c => c.vaga === tituloVaga);
 
-  let htmlCandidatos = candidatosDaVaga.map(c => {
-    const statusClass = c.status.toLowerCase().replace(/ /g, '-');
+  try {
+    // Faz a requisição ao endpoint Flask
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/vaga/${idVaga}`);
+    if (!resposta.ok) throw new Error("Erro ao buscar candidatos da vaga");
 
-    return `
-            <div class="card status-${statusClass}" data-status="${c.status}">
-                <div>
-                    <h3>${c.nome}</h3>
-                    <p><strong>Status:</strong> ${c.status}</p>
-                    <p><strong>Contato:</strong> ${c.email}</p>
-                </div>
-                <div class="action-icons" style="justify-content: flex-end;">
-                    ${c.status !== 'Contratado' ?
-        `<button class="btn-ghost" title="Mudar Status" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="abrirModalMudarStatus(${c.id}, '${c.nome}', '${c.status}', '${tituloVaga}')">Status</button>`
-        : ''}
-                </div>
-            </div>
-        `;
-  }).join("");
+    const candidatosDaVaga = await resposta.json();
+    console.log("Candidatos da vaga:", candidatosDaVaga);
 
-  const html = `
+    // Gera o HTML de cada candidato
+    let htmlCandidatos = candidatosDaVaga.map(c => {
+      const statusClass = c.status ? c.status.toLowerCase().replace(/ /g, '-') : 'desconhecido';
+
+      return `
+        <div class="card status-${statusClass}" data-status="${c.status}">
+          <div>
+            <h3>${c.nome}</h3>
+            <p><strong>Status:</strong> ${c.status}</p>
+            <p><strong>Contato:</strong> ${c.email}</p>
+            ${c.telefone ? `<p><strong>Telefone:</strong> ${c.telefone}</p>` : ""}
+          </div>
+          <div class="action-icons" style="justify-content: flex-end;">
+            ${c.status !== 'Contratado' ?
+          `<button class="btn-ghost" title="Mudar Status"
+                  style="background:#00c4cc; color:white; border-color:#5bc0de;"
+                  onclick="abrirModalMudarStatus(${c.id_candidato}, '${c.nome}', '${c.status}', '${tituloVaga}', ${c.id_vaga})">
+                  Status
+              </button>`
+          : ''}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Monta a tela
+    const html = `
       <div class="crud-container">
-        <div class="breadcrumb">Vagas > <a onclick="loadContent('listarVagas')">Listar Vagas</a> > Candidatos: ${tituloVaga}</div>
+        <div class="breadcrumb">
+          Vagas > <a onclick="loadContent('listarVagas')">Listar Vagas</a> > Candidatos: ${tituloVaga}
+        </div>
         <h2>Candidatos Atribuídos: ${tituloVaga}</h2>
-        <p>Lista de currículos para esta vaga. Total: ${candidatosDaVaga.length}</p>
-        
+        <p>Lista de candidatos vinculados a esta vaga. Total: ${candidatosDaVaga.length}</p>
+
         <div class="card-grid" id="candidatosVagaGrid" style="margin-top: 20px;">
-            ${htmlCandidatos}
+          ${htmlCandidatos || "<p>Nenhum candidato encontrado.</p>"}
         </div>
-        
+
         <div style="margin-top:20px;">
-            <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar para Vagas</button>
+          <button class="btn-ghost" onclick="loadContent('listarVagas')">⬅ Voltar para Vagas</button>
         </div>
-      </div>`;
-  document.getElementById("mainContent").innerHTML = html;
+      </div>
+    `;
+
+    document.getElementById("mainContent").innerHTML = html;
+
+  } catch (err) {
+    console.error("Erro ao listar candidatos por vaga:", err);
+    document.getElementById("mainContent").innerHTML = `
+      <div style="padding:20px; color:red;">Erro ao carregar candidatos da vaga.</div>
+    `;
+  }
 }
 
-function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga) {
-  modalCandidatoId = idCandidato;
-  const c = curriculos.find(x => x.id === idCandidato);
 
+
+
+
+function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga, idVaga) {
+  modalCandidatoId = idCandidato;
+  vagaIdAtual = idVaga;
+
+  // opções compatíveis com o ENUM do banco
   let opcoes = [
-    { value: "Em Contato", label: "Em Contato (Triagem Inicial)" },
-    { value: "Entrevista Técnica", label: "Entrevista Técnica (Próxima Fase)" },
-    { value: "Reprovado", label: "Reprovado (Desclassificar)" },
-    { value: "Contratado", label: "Contratado (Fechar Vaga)" }
+    { value: "Triagem", label: "Triagem (Em análise inicial)" },
+    { value: "Entrevista", label: "Entrevista (Fase Técnica)" },
+    { value: "Aprovado", label: "Aprovado (Aguardando Contratação)" },
+    { value: "Contratado", label: "Contratado (Fechar Vaga)" },
+    { value: "Rejeitado", label: "Rejeitado (Desclassificado)" }
   ].filter(opt => opt.value !== statusAtual);
 
   const html = `
-        <h3>Atualizar Status de: ${nomeCandidato}</h3>
-        <p>Vaga: <strong>${tituloVaga}</strong> | Status Atual: <strong>${statusAtual}</strong></p>
-        <label class="field-label" style="margin-top:10px;">Novo Status no Pipeline:</label>
-        <select id="selectNovoStatus" class="field-value">
-          ${opcoes.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("")}
-        </select>
-        ${c.status === 'Reprovado' || c.status === 'Contratado' ? '' : `
-          <div class="field-group full-width" style="margin-top: 15px;">
-            <label class="field-label">Observações (Opcional)</label>
-            <textarea id="modalObservacoes" class="field-value" rows="2"></textarea>
-          </div>
-        `}
-        <div style="margin-top:15px; text-align:right;">
-            <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar</button>
-            <button class="btn-ghost" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="confirmarMudarStatus('${tituloVaga}')">Confirmar Mudança</button>
-        </div>`;
+    <h3>Atualizar Status de: ${nomeCandidato}</h3>
+    <p>Vaga: <strong>${tituloVaga}</strong> | Status Atual: <strong>${statusAtual}</strong></p>
+
+    <label class="field-label" style="margin-top:10px;">Novo Status no Pipeline:</label>
+    <select id="selectNovoStatus" class="field-value">
+      ${opcoes.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join("")}
+    </select>
+
+    <div class="field-group full-width" style="margin-top: 15px;">
+      <label class="field-label">Observações (Opcional)</label>
+      <textarea id="modalObservacoes" class="field-value" rows="2"></textarea>
+    </div>
+
+    <div style="margin-top:15px; text-align:right;">
+      <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar</button>
+      <button class="btn-ghost" style="background:#00c4cc; color:white; border-color:#5bc0de;" onclick="confirmarMudarStatus(${idCandidato}, ${idVaga}, '${tituloVaga}')">Confirmar Mudança</button>
+    </div>
+  `;
+
   abrirModalCustom(html);
 }
 
-function confirmarMudarStatus(tituloVaga) {
-  const novoStatus = document.getElementById('selectNovoStatus').value;
-  const c = curriculos.find(x => x.id === modalCandidatoId);
-  let v = vagas.find(x => x.titulo === tituloVaga);
+async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
+  const novoStatus = document.getElementById("selectNovoStatus").value;
+  const observacoes = document.getElementById("modalObservacoes").value;
 
-  if (c) {
-    c.status = novoStatus;
+  try {
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: novoStatus, observacoes })
+    });
 
-    if (novoStatus === "Contratado") {
-      if (v) v.status = "Fechada";
-      alert(`Sucesso! Candidato ${c.nome} contratado. A vaga '${tituloVaga}' foi marcada como Fechada.`);
-    } else if (novoStatus === "Reprovado") {
-      alert(`Candidato ${c.nome} reprovado. (TODO: Mover dados detalhados para o Banco de Talentos).`);
-    } else {
-      alert(`Status de ${c.nome} alterado para: ${novoStatus}.`);
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      throw new Error(dados.erro || "Erro ao atualizar status");
     }
-  }
 
-  fecharModalCustom();
+    console.log(`Status atualizado para "${novoStatus}" com sucesso!`);
+    fecharModalCustom();
 
-  // Adiciona uma verificação para garantir que a vaga foi encontrada antes de chamar a listagem
-  if (v) {
-    // Volta para a lista de candidatos da vaga atualizada
-    listarCandidatosPorVaga(tituloVaga, v.id);
-  } else {
-    // Se não encontrar a vaga, volta para a lista principal
-    loadContent('listarVagas');
+    // recarrega a lista de candidatos dessa vaga
+    listarCandidatosPorVaga(tituloVaga, idVaga);
+
+  } catch (erro) {
+    console.error("Erro ao atualizar status:", erro);
+    alert("Falha ao atualizar o status. Tente novamente.");
   }
 }
+
+// function confirmarMudarStatus(tituloVaga) {
+//   const novoStatus = document.getElementById('selectNovoStatus').value;
+//   const c = curriculos.find(x => x.id === modalCandidatoId);
+//   let v = vagas.find(x => x.titulo === tituloVaga);
+
+//   if (c) {
+//     c.status = novoStatus;
+
+//     if (novoStatus === "Contratado") {
+//       if (v) v.status = "Fechada";
+//       alert(`Sucesso! Candidato ${c.nome} contratado. A vaga '${tituloVaga}' foi marcada como Fechada.`);
+//     } else if (novoStatus === "Reprovado") {
+//       alert(`Candidato ${c.nome} reprovado. (TODO: Mover dados detalhados para o Banco de Talentos).`);
+//     } else {
+//       alert(`Status de ${c.nome} alterado para: ${novoStatus}.`);
+//     }
+//   }
+
+//   fecharModalCustom();
+
+//   // Adiciona uma verificação para garantir que a vaga foi encontrada antes de chamar a listagem
+//   if (v) {
+//     // Volta para a lista de candidatos da vaga atualizada
+//     listarCandidatosPorVaga(tituloVaga, v.id);
+//   } else {
+//     // Se não encontrar a vaga, volta para a lista principal
+//     loadContent('listarVagas');
+//   }
+// }
 
 // INICIALIZAÇÃO DA PÁGINA (EXECUTA NO CARREGAMENTO)
 
