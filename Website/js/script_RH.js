@@ -88,11 +88,6 @@ function filterCardByStatus(containerId = 'vagaCard', dataAttribute = 'data-stat
   });
 }
 
-function uploadCurriculo() {
-  alert("Simulação de Upload Rápido realizado. Currículo em 'Triagem'.");
-  loadContent('triagem');
-}
-
 // FUNÇÕES DE NAVEGAÇÃO E CARREGAMENTO DE CONTEÚDO
 
 async function getVagaMetrics(vagaId) {
@@ -454,6 +449,157 @@ function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVa
   `;
 
   abrirModalCustom(html);
+}
+
+function uploadCurriculo() {
+  const vagaSelecionada = document.getElementById('vagaCandidato').value;
+  const arquivoInput = document.getElementById('myFile');
+  const arquivo = arquivoInput.files[0];
+
+  if (!arquivo) {
+    alert("Selecione um arquivo de currículo (.pdf) para continuar.");
+    return;
+  }
+
+  // Simulação: Gera um ID temporário para o currículo recém-subido
+  const novoCurriculoId = Date.now();
+  const nomeArquivo = arquivo.name.substring(0, arquivo.name.lastIndexOf('.')) || arquivo.name;
+
+  // 1. Modal de Carregamento/Upload
+  const htmlCarregamento = `
+        <h3>Simulação de Upload e Análise</h3>
+        <div style="text-align:center; padding: 20px;">
+            <p><strong>Vaga de Destino:</strong> ${vagaSelecionada || "(Triagem Geral)"}</p>
+            <p style="margin-top: 10px;">Enviando arquivo: <strong>${nomeArquivo}.pdf</strong></p>
+
+            <div style="margin-top: 20px;">
+                <p style="color: #3498db; font-weight: bold;"> Carregando CV...</p>
+                <div class="progress-bar-container" style="width: 80%; margin: 10px auto;">
+                    <div class="progress-bar" id="uploadProgressBar" style="width: 0%; background-color: #3498db; height: 10px; border-radius: 5px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar Upload</button>
+            </div>
+        </div>
+    `;
+  abrirModalCustom(htmlCarregamento);
+
+  // Simulação da Barra de Progresso e Atraso
+  let progress = 0;
+  const progressBar = document.getElementById('uploadProgressBar');
+  const interval = setInterval(() => {
+    progress += 10;
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
+    }
+    if (progress >= 100) {
+      clearInterval(interval);
+      // Chama a próxima etapa após a simulação de upload
+      setTimeout(() => mostrarBotaoAnalise(vagaSelecionada, novoCurriculoId, nomeArquivo), 500);
+    }
+  }, 200);
+}
+
+
+/**
+ * Exibe a modal com o botão para iniciar a análise IA após o upload.
+ */
+function mostrarBotaoAnalise(tituloVaga, idCurriculo, nomeCandidato) {
+  // Simula a criação de um novo registro temporário
+  const novoCandidato = {
+    id: idCurriculo,
+    nome: nomeCandidato,
+    vaga: tituloVaga || "(Não Atribuído)",
+    status: "Novo",
+    email: "simulado@ia.com",
+    telefone: "N/A",
+    cvUrl: "link_temp.pdf",
+    cvDetalhe: null
+  };
+  // Adiciona o candidato simulado ao array de dados para que a análise consiga encontrá-lo
+  curriculos.push(novoCandidato);
+
+  const htmlAnalise = `
+        <h3> Upload Concluído!</h3>
+        <p>Currículo de **${nomeCandidato}** pronto para ser analisado.</p>
+        <p style="margin-top: 10px;">Vaga Atribuída: <strong>${tituloVaga || "Triagem Geral"}</strong></p>
+        <p style="margin-top: 10px; color: #34495e; font-style: italic;">Clique para realizar a análise dos requisitos com a IA e exibir o resultado.</p>
+
+        <div style="margin-top:30px; text-align:right;">
+            <button class="btn-ghost" onclick="fecharModalCustom()">Fechar (Sem Análise)</button>
+            <button class="btn-ghost"
+                    style="background:#00c4cc; color:white; border-color:#00c4cc; margin-left: 10px;"
+                    onclick="analiseRapidaIA(${idCurriculo}, '${tituloVaga}')">
+                  Análise Rápida IA
+            </button>
+        </div>
+    `;
+  abrirModalCustom(htmlAnalise);
+}
+
+/**
+ * Simula o processamento da IA e exibe os resultados na modal.
+ */
+function analiseRapidaIA(idCurriculo, tituloVaga) {
+  const candidato = curriculos.find(c => c.id === idCurriculo);
+
+  // 1. Modal de Processamento da IA
+  const htmlProcessando = `
+        <h3> Análise Rápida IA em Progresso...</h3>
+        <div style="text-align:center; padding: 20px;">
+            <p>Aguarde enquanto a Inteligência Artificial analisa a aderência do currículo (**${candidato.nome}**) aos requisitos da vaga **${tituloVaga}**.</p>
+            <div style="margin-top: 20px;">
+                
+            </div>
+            <p style="margin-top: 10px; color: #0095ffff; font-weight: bold;">Processando informações...</p>
+        </div>
+    `;
+  abrirModalCustom(htmlProcessando);
+
+  // Simulação do tempo de análise
+  setTimeout(() => {
+    // 2. Simula o resultado da análise
+    const resultadoIA = simularAnaliseIA();
+
+    // Atualiza o objeto do currículo com os dados da análise (Simulação)
+    candidato.cvDetalhe = resultadoIA;
+
+    // 3. Monta e exibe o resultado final na modal
+    const htmlResultado = `
+            <h3>Análise Finalizada: ${candidato.nome}</h3>
+            <p>Vaga: <strong>${tituloVaga || "Triagem Geral"}</strong></p>
+
+            <hr style="margin: 15px 0;">
+
+            <p><strong>Pontuação de Aderência:</strong>
+                <span style="color: ${resultadoIA.adesao > 75 ? '#28a745' : '#ffc107'}; font-size: 1.2em; font-weight: bold;">
+                    ${resultadoIA.adesao}%
+                </span>
+            </p>
+
+            <div class="field-group full-width" style="margin-top:15px;">
+                <label class="field-label">Análise IA</label>
+                <textarea class="field-value read-only" rows="3" disabled>${resultadoIA.analise}</textarea>
+            </div>
+
+            <div class="field-group full-width" style="margin-top:15px;">
+                <label class="field-label">Skills Identificadas</label>
+                <input class="field-value read-only" value="${resultadoIA.skills.join(', ')}" disabled>
+            </div>
+
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn-ghost" onclick="fecharModalCustom()">Fechar</button>
+                <button class="btn-ghost"
+                        style="background:#28a745; color:white; border-color:#28a745; margin-left: 10px;"
+                        onclick="confirmarAtribuicaoEStatus(${idCurriculo})">
+                    Mover para Triagem
+                </button>
+            </div>
+        `;
+    abrirModalCustom(htmlResultado);
+  }, 2500);
 }
 
 async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
