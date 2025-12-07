@@ -46,13 +46,6 @@
 
             <div class="cards">
                 <div class="card">
-                    <h3>Acompanhamento</h3>
-                    <p>Verifique o acompanhamento de suas requisições.</p>
-                    <a href="operacoes_GE.html">
-                        <button>Acessar</button>
-                    </a>
-                </div>
-                <div class="card">
                     <h3>Requisição</h3>
                     <p>Preencha um formulário para abrir uma requisição de vaga.</p>
                     <a href="./abertura_vaga_GE.html">
@@ -60,10 +53,17 @@
                     </a>
                 </div>
                 <div class="card">
+                    <h3>Acompanhamento</h3>
+                    <p>Verifique o acompanhamento de suas requisições.</p>
+                    <a href="operacoes_GE.html">
+                        <button>Acessar</button>
+                    </a>
+                </div>
+                <div class="card">
                     <h3>Dashboard</h3>
                     <p>Acompanhe dados de sua operação.</p>
                     <a href="grafico_GE.html">
-                                            <button>Acessar</button>
+                        <button>Acessar</button>
                     </a>
 
                 </div>
@@ -81,14 +81,14 @@
 
 </html>
 <script>
-  const usuario = JSON.parse(sessionStorage.getItem('usuario'))
+    const usuario = JSON.parse(sessionStorage.getItem('usuario'))
 
-  if (usuario) {
-    document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
-    document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
-    document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
-  } else {
-    document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
+    if (usuario) {
+        document.getElementById('title_username_usuario').innerHTML = usuario.usuario.nome;
+        document.getElementById('title_username_usuario_strong').innerHTML = usuario.usuario.nome;
+        document.getElementById('email_usuario_session').innerHTML = usuario.usuario.email;
+    } else {
+        document.getElementById('title_username_usuario').nextElementSibling.innerText = 'Não encontrado';
 
-  }
+    }
 </script>

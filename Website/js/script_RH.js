@@ -11,7 +11,7 @@ let vagas = []
 
 async function carregarVagas() {
   try {
-    const resposta = await fetch("http://98.92.123.94:8000/vagas");
+    const resposta = await fetch("http://localhost:5000/vagas");
     if (!resposta.ok) throw new Error("Erro ao buscar vagas");
     vagas = await resposta.json();
     console.log("Vagas carregadas:", vagas);
@@ -25,7 +25,7 @@ let candidato_triagem = [];
 
 async function carregar_cadidato_triagem() {
   try {
-    const resposta = await fetch("http://98.92.123.94:8000/processo-seletivo");
+    const resposta = await fetch("http://localhost:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -88,16 +88,11 @@ function filterCardByStatus(containerId = 'vagaCard', dataAttribute = 'data-stat
   });
 }
 
-function uploadCurriculo() {
-  alert("Simulação de Upload Rápido realizado. Currículo em 'Triagem'.");
-  loadContent('triagem');
-}
-
 // FUNÇÕES DE NAVEGAÇÃO E CARREGAMENTO DE CONTEÚDO
 
 async function getVagaMetrics(vagaId) {
   try {
-    const response = await fetch(`http://98.92.123.94:8000/processo-seletivo/vaga/${vagaId}`);
+    const response = await fetch(`http://localhost:5000/processo-seletivo/vaga/${vagaId}`);
     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
     const candidatos = await response.json();
 
@@ -117,7 +112,7 @@ async function getVagaMetrics(vagaId) {
 
 async function aprovarVaga(id) {
   try {
-    const resposta = await fetch(`http://98.92.123.94:8000/vagas/${id}/aprovar`, {
+    const resposta = await fetch(`http://localhost:5000/vagas/${id}/aprovar`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -147,7 +142,7 @@ async function loadContent(page) {
   fecharModalCustom();
 
   try {
-    const resposta = await fetch("http://98.92.123.94:8000/vagas");
+    const resposta = await fetch("http://localhost:5000/vagas");
     if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
     vagas = await resposta.json();
     console.log("Vagas encontradas: ", vagas)
@@ -158,7 +153,7 @@ async function loadContent(page) {
   }
 
   try {
-    const resposta = await fetch("http://98.92.123.94:8000/processo-seletivo");
+    const resposta = await fetch("http://localhost:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -193,7 +188,10 @@ async function loadContent(page) {
           <div class="action-icons">
             <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
-          `<button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
+          `<button class="btn-ghost" title="Fechar Vaga" style="background:#da4b59ff; color:white; border-color:#007bff; margin-left: 10px;" onclick="fecharVaga(${v.id_vaga})">
+                Fechar Vaga
+              </button>
+          <button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
                 Candidatos (${metrics.totalAtivos + metrics.totalContratados})
               </button>` : ''}
           </div>
@@ -272,8 +270,9 @@ async function loadContent(page) {
             <div class="card status-${c.status.toLowerCase().replace(/ /g, '-')}" data-status="${c.status}">
               <div>
                 <h3>${c.nome}</h3>
-                <p><strong>Vaga:</strong> ${c.id_vaga || "N/A"}</p>
+                <p><strong>Vaga:</strong> ${c.id_vaga || "N/A"} <p><strong>Descrição:</strong> ${c.titulo_vaga || "N/A"}</p>
                 <p><strong>Status:</strong> ${c.status}</p>
+                <p><strong>Match Score:</strong> ${renderMatchScoreCard(c.matchScore)}</p>
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
@@ -293,11 +292,12 @@ async function loadContent(page) {
       <div class="crud-container">
         <div class="breadcrumb">Candidatos > Upload Rápido</div>
         <h2>Upload de Currículos</h2>
-        <p class="descricao">Suba currículos de fontes externas e atribua a uma vaga.</p>
+        <p class="descricao">Suba currículos de fontes externas e atribua a uma vaga.</p><br><br>
         <div class="detail-form-grid">
           <div class="field-group"><label class="field-label">Vaga de Atribuição</label>
           <div class="form-group">
                 <label for="tipoVaga">Upload RH</label>
+                <br><br>
                 <select id="tipoVaga" required>
                   <option value="">Selecione</option>
                   <option value="Upload RH">Upload RH</option>
@@ -306,6 +306,8 @@ async function loadContent(page) {
                   <option value="Plataforma">Plataforma</option>
                   <option value="Outro">Outro</option>
           </select>
+          <br>
+          <br>
         </div>
             <select id="vagaCandidato" class="field-value">
               <option value="">(Manter em Triagem - Status: Novo)</option>
@@ -353,6 +355,19 @@ async function loadContent(page) {
   mainContent.innerHTML = html;
 }
 
+function renderMatchScoreCard(score) {
+  if (score === null || score === undefined) {
+    return `<span style="color: gray;">Ainda não analisado</span>`;
+  }
+
+  let cor = "red";
+
+  if (score > 80) cor = "green";
+  else if (score > 50) cor = "orange";
+
+  return `<span style="color: ${cor}; font-weight: bold;">${score}%</span>`;
+}
+
 // FUNÇÕES DE VAGA, CANDIDATO E MODAIS
 
 async function listarCandidatosPorVaga(tituloVaga, idVaga) {
@@ -360,7 +375,7 @@ async function listarCandidatosPorVaga(tituloVaga, idVaga) {
 
   try {
     // Faz a requisição ao endpoint Flask
-    const resposta = await fetch(`http://98.92.123.94:8000/processo-seletivo/vaga/${idVaga}`);
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/vaga/${idVaga}`);
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos da vaga");
 
     const candidatosDaVaga = await resposta.json();
@@ -420,6 +435,33 @@ async function listarCandidatosPorVaga(tituloVaga, idVaga) {
   }
 }
 
+async function fecharVaga(idVaga) {
+  try {
+    const response = await fetch(`http://localhost:5000/vagas/${idVaga}/fechar`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Erro ao fechar vaga:", data);
+      return data;
+    }
+
+    loadContent('listarVagas')
+    alert("Vaga fechada com sucesso")
+    console.log("Vaga fechada com sucesso:", data);
+    return data;
+
+  } catch (error) {
+    console.error("Erro na requisição:", error);
+  }
+}
+
+
 function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVaga, idVaga) {
   modalCandidatoId = idCandidato;
   vagaIdAtual = idVaga;
@@ -456,12 +498,163 @@ function abrirModalMudarStatus(idCandidato, nomeCandidato, statusAtual, tituloVa
   abrirModalCustom(html);
 }
 
+function uploadCurriculo() {
+  const vagaSelecionada = document.getElementById('vagaCandidato').value;
+  const arquivoInput = document.getElementById('myFile');
+  const arquivo = arquivoInput.files[0];
+
+  if (!arquivo) {
+    alert("Selecione um arquivo de currículo (.pdf) para continuar.");
+    return;
+  }
+
+  // Simulação: Gera um ID temporário para o currículo recém-subido
+  const novoCurriculoId = Date.now();
+  const nomeArquivo = arquivo.name.substring(0, arquivo.name.lastIndexOf('.')) || arquivo.name;
+
+  // 1. Modal de Carregamento/Upload
+  const htmlCarregamento = `
+        <h3>Simulação de Upload e Análise</h3>
+        <div style="text-align:center; padding: 20px;">
+            <p><strong>Vaga de Destino:</strong> ${vagaSelecionada || "(Triagem Geral)"}</p>
+            <p style="margin-top: 10px;">Enviando arquivo: <strong>${nomeArquivo}.pdf</strong></p>
+
+            <div style="margin-top: 20px;">
+                <p style="color: #3498db; font-weight: bold;"> Carregando CV...</p>
+                <div class="progress-bar-container" style="width: 80%; margin: 10px auto;">
+                    <div class="progress-bar" id="uploadProgressBar" style="width: 0%; background-color: #3498db; height: 10px; border-radius: 5px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-top:20px;">
+                <button class="btn-ghost" onclick="fecharModalCustom()">Cancelar Upload</button>
+            </div>
+        </div>
+    `;
+  abrirModalCustom(htmlCarregamento);
+
+  // Simulação da Barra de Progresso e Atraso
+  let progress = 0;
+  const progressBar = document.getElementById('uploadProgressBar');
+  const interval = setInterval(() => {
+    progress += 10;
+    if (progressBar) {
+      progressBar.style.width = `${progress}%`;
+    }
+    if (progress >= 100) {
+      clearInterval(interval);
+      // Chama a próxima etapa após a simulação de upload
+      setTimeout(() => mostrarBotaoAnalise(vagaSelecionada, novoCurriculoId, nomeArquivo), 500);
+    }
+  }, 200);
+}
+
+
+/**
+ * Exibe a modal com o botão para iniciar a análise IA após o upload.
+ */
+function mostrarBotaoAnalise(tituloVaga, idCurriculo, nomeCandidato) {
+  // Simula a criação de um novo registro temporário
+  const novoCandidato = {
+    id: idCurriculo,
+    nome: nomeCandidato,
+    vaga: tituloVaga || "(Não Atribuído)",
+    status: "Novo",
+    email: "simulado@ia.com",
+    telefone: "N/A",
+    cvUrl: "link_temp.pdf",
+    cvDetalhe: null
+  };
+  // Adiciona o candidato simulado ao array de dados para que a análise consiga encontrá-lo
+  curriculos.push(novoCandidato);
+
+  const htmlAnalise = `
+        <h3> Upload Concluído!</h3>
+        <p>Currículo de **${nomeCandidato}** pronto para ser analisado.</p>
+        <p style="margin-top: 10px;">Vaga Atribuída: <strong>${tituloVaga || "Triagem Geral"}</strong></p>
+        <p style="margin-top: 10px; color: #34495e; font-style: italic;">Clique para realizar a análise dos requisitos com a IA e exibir o resultado.</p>
+
+        <div style="margin-top:30px; text-align:right;">
+            <button class="btn-ghost" onclick="fecharModalCustom()">Fechar (Sem Análise)</button>
+            <button class="btn-ghost"
+                    style="background:#00c4cc; color:white; border-color:#00c4cc; margin-left: 10px;"
+                    onclick="analiseRapidaIA(${idCurriculo}, '${tituloVaga}')">
+                  Análise Rápida IA
+            </button>
+        </div>
+    `;
+  abrirModalCustom(htmlAnalise);
+}
+
+/**
+ * Simula o processamento da IA e exibe os resultados na modal.
+ */
+function analiseRapidaIA(idCurriculo, tituloVaga) {
+  const candidato = curriculos.find(c => c.id === idCurriculo);
+
+  // 1. Modal de Processamento da IA
+  const htmlProcessando = `
+        <h3> Análise Rápida IA em Progresso...</h3>
+        <div style="text-align:center; padding: 20px;">
+            <p>Aguarde enquanto a Inteligência Artificial analisa a aderência do currículo (**${candidato.nome}**) aos requisitos da vaga **${tituloVaga}**.</p>
+            <div style="margin-top: 20px;">
+                
+            </div>
+            <p style="margin-top: 10px; color: #0095ffff; font-weight: bold;">Processando informações...</p>
+        </div>
+    `;
+  abrirModalCustom(htmlProcessando);
+
+  // Simulação do tempo de análise
+  setTimeout(() => {
+    // 2. Simula o resultado da análise
+    const resultadoIA = simularAnaliseIA();
+
+    // Atualiza o objeto do currículo com os dados da análise (Simulação)
+    candidato.cvDetalhe = resultadoIA;
+
+    // 3. Monta e exibe o resultado final na modal
+    const htmlResultado = `
+            <h3>Análise Finalizada: ${candidato.nome}</h3>
+            <p>Vaga: <strong>${tituloVaga || "Triagem Geral"}</strong></p>
+
+            <hr style="margin: 15px 0;">
+
+            <p><strong>Pontuação de Aderência:</strong>
+                <span style="color: ${resultadoIA.adesao > 75 ? '#28a745' : '#ffc107'}; font-size: 1.2em; font-weight: bold;">
+                    ${resultadoIA.adesao}%
+                </span>
+            </p>
+
+            <div class="field-group full-width" style="margin-top:15px;">
+                <label class="field-label">Análise IA</label>
+                <textarea class="field-value read-only" rows="3" disabled>${resultadoIA.analise}</textarea>
+            </div>
+
+            <div class="field-group full-width" style="margin-top:15px;">
+                <label class="field-label">Skills Identificadas</label>
+                <input class="field-value read-only" value="${resultadoIA.skills.join(', ')}" disabled>
+            </div>
+
+            <div style="margin-top:20px; text-align:right;">
+                <button class="btn-ghost" onclick="fecharModalCustom()">Fechar</button>
+                <button class="btn-ghost"
+                        style="background:#28a745; color:white; border-color:#28a745; margin-left: 10px;"
+                        onclick="confirmarAtribuicaoEStatus(${idCurriculo})">
+                    Mover para Triagem
+                </button>
+            </div>
+        `;
+    abrirModalCustom(htmlResultado);
+  }, 2500);
+}
+
 async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   const novoStatus = document.getElementById("selectNovoStatus").value;
   const observacoes = document.getElementById("modalObservacoes").value;
 
   try {
-    const resposta = await fetch(`http://98.92.123.94:8000/processo-seletivo/${idVaga}/${idCandidato}`, {
+    const resposta = await fetch(`http://localhost:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
@@ -570,7 +763,7 @@ function confirmarAprovacaoComDetalhes() {
 async function verDetalhesVagaGestor(id_vaga) {
   try {
     // Busca os dados da vaga direto do backend
-    const resposta = await fetch(`http://98.92.123.94:8000/vagas/${id_vaga}`);
+    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`);
     if (!resposta.ok) throw new Error("Erro ao buscar detalhes da vaga");
 
     const v = await resposta.json();
@@ -715,7 +908,7 @@ async function salvarVagaRH(id_vaga) {
 
   try {
     // Chama o endpoint PUT
-    const resposta = await fetch(`http://98.92.123.94:8000/vagas/${id_vaga}`, {
+    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -795,6 +988,7 @@ async function exibirCurriculo(idCandidato, rodarIA = false) {
     // 2. Pega o primeiro resultado (assumindo que id_candidato é único)
     const c = candidatos[0];
     if (!c) throw new Error("Candidato não encontrado");
+    console.log("candidatos: ", c)
 
     // 3. Pega a vaga associada
     const vaga = {
@@ -837,6 +1031,7 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
   // Checa se a IA já foi rodada. Usamos iaResultado.iaRodada para rastrear isso.
   const isReady = iaResultado.iaRodada;
   const scoreColor = iaResultado.matchScore >= 80 ? '#28a745' : iaResultado.matchScore >= 50 ? '#ffc107' : '#e74c3c';
+  let resultadoScore = Number(iaResultado.matchScore)
 
   const requisitosInfo = vaga ? vaga.skills : (c.vaga && c.vaga !== 'N/A' ? `Vaga "${c.vaga}" não encontrada na base.` : 'Candidato sem vaga atribuída.');
   const matchScoreDisplay = isReady ? iaResultado.matchScore + '%' : (iaResultado.matchScore === '...' ? '...' : 'N/A');
@@ -901,7 +1096,7 @@ function montarCurriculoHTML(c, vaga, iaResultado, nomeVagaParaIA) {
         </div>
     </div>
     <div style="margin-top:20px;">
-        <button class="btn-ghost" onclick="salvarAnaliseCurriculo(${c.id_candidato})" style="background:#28a745; color:white; border-color:#28a745;">Salvar Análise</button>
+        <button class="btn-ghost" onclick="salvarAnaliseCurriculo(${c.id_vaga}, ${c.id_candidato}, ${resultadoScore})" style="background:#28a745; color:white; border-color:#28a745;">Salvar Análise</button>
         <button class="btn-ghost" onclick="loadContent('triagem')">⬅ Voltar</button>
         <a href="${c.cvUrl}" target="_blank" class="btn-ghost" style="background:#00c4cc; color:white; text-decoration:none; padding:10px; border-color:#00c4cc; margin-left: 10px;">Visualizar CV Original</a>
     </div>
@@ -925,26 +1120,61 @@ function toggleSkillEditMode(idCandidato) {
 }
 
 
-function salvarAnaliseCurriculo(idCandidato) {
+async function salvarAnaliseCurriculo(IdVaga, idCandidato, MatchScore) {
   const c = curriculos.find(x => x.id === idCandidato);
   if (!c) return alert("Erro: Candidato não encontrado.");
 
-  // Pega os valores da textarea e limpa os espaços
+  // Pega os valores
   const novaAnalise = document.getElementById(`analiseRHEdit-${idCandidato}`).value.trim();
   const novasSkillsTexto = document.getElementById(`skillsTextarea-${idCandidato}`).value.trim();
 
-  // Converte o texto de habilidades para um array, separando por vírgula e removendo vazios
-  const novasSkills = novasSkillsTexto.split(',').map(s => s.trim()).filter(s => s.length > 0);
+  // Converte texto para array
+  const novasSkills = novasSkillsTexto
+    .split(',')
+    .map(s => s.trim())
+    .filter(s => s.length > 0);
 
-  // Atualiza os dados
+  // Atualiza localmente
   c.cvDetalhe.analise = novaAnalise;
   c.cvDetalhe.skills = novasSkills;
 
-  alert("Análise e Habilidades atualizadas com sucesso!");
+  // ===============================
+  //  🔥 NOVA PARTE: atualização do MatchScore no backend
+  // ===============================
+  try {
+    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/${IdVaga}/${idCandidato}/score`, {
 
-  // Recarrega a visualização para mostrar as tags atualizadas
+
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        matchScore: MatchScore
+      })
+    });
+
+    if (!resposta.ok) {
+      const erro = await resposta.json();
+      console.error("Erro ao salvar Score:", erro);
+      alert("Erro ao atualizar o Match Score no backend.");
+      return;
+    }
+
+    const resultado = await resposta.json();
+    console.log("Score atualizado com sucesso:", resultado);
+
+    alert("Análise, habilidades e Match Score atualizados com sucesso!");
+  } catch (e) {
+    console.error("Erro na requisição:", e);
+    alert("Erro ao conectar com o servidor.");
+  }
+
+  // Atualiza visualização
+  console.log("Resultado MatchScore: ", MatchScore)
   exibirCurriculo(idCandidato);
 }
+
 
 function exibirTalento(id) {
   const t = talentos.find(x => x.id === id);
