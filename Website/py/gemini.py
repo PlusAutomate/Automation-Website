@@ -9,7 +9,7 @@ import json
 
 app = Flask(__name__)
 
-# ✅ Libera CORS para QUALQUER origem (portas dinâmicas, localhost, 127.0.0.1 etc.)
+# ✅ Libera CORS para QUALQUER origem (portas dinâmicas, localhost, 98.95.103.3 etc.)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # 🔧 Garante que até respostas OPTIONS (preflight) incluam os cabeçalhos

@@ -981,7 +981,7 @@ function moverParaTalentos(id) {
 async function exibirCurriculo(idCandidato, rodarIA = false) {
   try {
     // 1. Busca os dados do candidato no backend
-    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/candidato/${idCandidato}`);
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/candidato/${idCandidato}`);
     if (!resposta.ok) throw new Error("Erro ao buscar dados do candidato");
     const candidatos = await resposta.json();
 
@@ -1142,7 +1142,7 @@ async function salvarAnaliseCurriculo(IdVaga, idCandidato, MatchScore) {
   //  🔥 NOVA PARTE: atualização do MatchScore no backend
   // ===============================
   try {
-    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/${IdVaga}/${idCandidato}/score`, {
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${IdVaga}/${idCandidato}/score`, {
 
 
       method: "PUT",
@@ -1218,7 +1218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
-  const apiURL = 'http://127.0.0.1:5001/api/match-score';
+  const apiURL = 'http://98.95.103.3:5001/api/match-score';
 
   try {
     // Caso venha como objeto (ex: vaga.skills)
