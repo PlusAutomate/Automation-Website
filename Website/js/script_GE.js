@@ -125,7 +125,7 @@ async function loadContent(page) {
               </p>` : ""}
           </div>
           <div class="action-icons">
-            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="/img/inspecionar-icon.png" alt="">
+            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="./img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
           `<button class="btn-ghost" title="Ver Candidatos" style="background:#00c4cc; color:white; border-color:#007bff; margin-left: 10px;" onclick="listarCandidatosPorVaga('${v.titulo}', ${v.id_vaga})">
                 Candidatos (${metrics.totalAtivos + metrics.totalContratados})
@@ -184,8 +184,8 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email_candidato}</p>
               </div>
               <div class="action-icons">
-                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="/img/inspecionar-icon.png" alt=">
-                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_candidato})" class="icon-cards" src="/img/lixo-icon.png" alt="">
+                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="./img/inspecionar-icon.png" alt=">
+                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_candidato})" class="icon-cards" src="./img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("")}
@@ -476,7 +476,7 @@ async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   try {
     const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application./json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
     });
 

@@ -32,7 +32,7 @@
 .logo::before {
     content: '';
     display: block; /* Essencial para que width/height funcionem */
-    background-image: url('/img/logo.png'); /* Caminho da sua imagem */
+    background-image: url('./img/logo.png'); /* Caminho da sua imagem */
     
     /* Configurações da imagem */
     background-size: contain; /* Ajusta a imagem dentro do elemento */

@@ -5,7 +5,7 @@ body {
     padding: 20px;
     color: #333;
 
-    background-image: url('/img/fundo_dash5.jpg');
+    background-image: url('./img/fundo_dash5.jpg');
     background-size: cover;
     background-position: center; 
 }
