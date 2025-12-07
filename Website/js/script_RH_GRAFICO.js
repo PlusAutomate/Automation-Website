@@ -120,7 +120,10 @@ async function renderTempoEtapas() {
   ).toFixed(1);
   injectKPIs([{ titulo: "Média Geral", valor: mediaGeral, sufixo: " dias" }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -166,7 +169,10 @@ async function renderTaxaAprovacao() {
     { titulo: "Avaliados", valor: aval }
   ]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -201,7 +207,10 @@ async function renderAreasRequisitadas() {
     return;
   }
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -238,7 +247,10 @@ async function renderTempoFechamento() {
   ).toFixed(1);
   injectKPIs([{ titulo: "Média Geral", valor: media, sufixo: " dias" }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "line",
@@ -278,7 +290,10 @@ async function renderOrigemCandidatos() {
   const total = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
   injectKPIs([{ titulo: "Total de Candidatos", valor: total }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "doughnut",
@@ -291,6 +306,8 @@ async function renderOrigemCandidatos() {
     },
     options: {
       responsive: true,
+      // ⚠️ CORREÇÃO CRÍTICA PARA GRÁFICOS DE ROSCA/PIZZA FICAREM GRANDES
+      maintainAspectRatio: false,
       plugins: { legend: { position: "bottom" } },
       cutout: "55%"
     }
@@ -316,7 +333,10 @@ async function renderUrgenciaVagas() {
     return;
   }
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -354,7 +374,10 @@ async function renderFunilProcesso() {
   const total = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
   injectKPIs([{ titulo: "Total no Funil", valor: total }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "bar",
@@ -393,7 +416,10 @@ async function renderTalentosMes() {
   const totalPeriodo = data.reduce((acc, cur) => acc + Number(cur.total || 0), 0);
   injectKPIs([{ titulo: "Total no Período", valor: totalPeriodo }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "line",
@@ -435,7 +461,10 @@ async function renderTaxaAbandono() {
   ).toFixed(1);
   injectKPIs([{ titulo: "Média do Período", valor: media, sufixo: "%" }]);
 
-  const ctx = document.getElementById("graficoCanvas").getContext("2d");
+  const canvas = document.getElementById("graficoCanvas");
+  if (!canvas) { console.error("Canvas não encontrado."); return; }
+  const ctx = canvas.getContext("2d");
+
   clearChart();
   chartInstance = new Chart(ctx, {
     type: "line",
