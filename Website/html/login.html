@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="/Website/img/logo.png">
+    <link rel="icon" type="image/x-icon" href="/img/logo.png">
     <title>Login</title>
-    <link rel="stylesheet" href="/Website/css/login.css">
+    <link rel="stylesheet" href="/css/login.css">
 </head>
 
 <body>
@@ -86,7 +86,7 @@
 
 
                 showPopup('LOGIN FEITO COM SUCESSO!', 'Vamos preencher essas vagas!', 'success', () => {
-                    window.location.href = "/Website/html/dashboard_RH.html";
+                    window.location.href = "/html/dashboard_RH.html";
                 });
             } else if (resposta.status === 400) {
                 showPopup('ERRO NO LOGIN!', '(Campos de email e senha são obrigatórios)', 'error');
@@ -128,7 +128,7 @@
 
 
                 showPopup('LOGIN FEITO COM SUCESSO!', 'Vamos preencher essas vagas!', 'success', () => {
-                    window.location.href = "/Website/html/dashboard_GE.html";
+                    window.location.href = "/html/dashboard_GE.html";
                 });
             } else if (resposta.status === 400) {
                 showPopup('ERRO NO LOGIN!', '(Campos de email e senha são obrigatórios)', 'error');
@@ -153,10 +153,10 @@
 
         if (type === 'success') {
             popupTitle.style.color = '#33D700';
-            popupIcon.src = '/Website/img/sucesso.png';
+            popupIcon.src = '/img/sucesso.png';
         } else if (type === 'error') {
             popupTitle.style.color = '#EB3223';
-            popupIcon.src = '/Website/img/erro.png';
+            popupIcon.src = '/img/erro.png';
         }
 
         popup.style.display = 'flex';

@@ -1,4 +1,4 @@
-// /Website/js/script_GE_VAGA.js
+// /js/script_GE_VAGA.js
 
 const API_BASE = "http://98.95.103.3:5000"; // mantenha seu back; aqui só espelhamos
 
