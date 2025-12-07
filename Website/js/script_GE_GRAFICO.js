@@ -3,7 +3,7 @@
 // =====================================================
 
 let chartInstance = null;
-const API_BASE_G = "http://localhost:5000/dashboard/gestor";
+const API_BASE_G = "http://98.95.103.3:5000/dashboard/gestor";
 
 // ----- Cache simples por endpoint -----
 const CACHE_TTL = 30_000; // 30s
