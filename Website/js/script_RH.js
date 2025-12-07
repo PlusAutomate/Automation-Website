@@ -186,7 +186,7 @@ async function loadContent(page) {
               </p>` : ""}
           </div>
           <div class="action-icons">
-            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
+            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="/Website/img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
           `<button class="btn-ghost" title="Fechar Vaga" style="background:#da4b59ff; color:white; border-color:#007bff; margin-left: 10px;" onclick="fecharVaga(${v.id_vaga})">
                 Fechar Vaga
@@ -276,9 +276,9 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
-                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
-                  <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="../img/mover-icon.png" alt="">
-                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/lixo-icon.png" alt="">
+                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="/Website/img/inspecionar-icon.png" alt="">
+                  <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="/Website/img/mover-icon.png" alt="">
+                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="/Website/img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("")}
@@ -343,8 +343,8 @@ async function loadContent(page) {
                 <p><strong>Origem:</strong> ${t.origem}</p>
               </div>
               <div class="action-icons">
-               <img title="Exibir curriculo" onclick="exibirTalento(${t.id})" class="icon-cards" src="../img/inspecionar-icon.png" alt=">
-               <img title="Excluir candidato" onclick="deletarTalento(${t.id})" class="icon-cards" src="../img/lixo-icon.png" alt="">
+               <img title="Exibir curriculo" onclick="exibirTalento(${t.id})" class="icon-cards" src="/Website/img/inspecionar-icon.png" alt=">
+               <img title="Excluir candidato" onclick="deletarTalento(${t.id})" class="icon-cards" src="/Website/img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("") : `<div style="text-align:center; padding:20px;">Nenhum talento no banco.</div>`}

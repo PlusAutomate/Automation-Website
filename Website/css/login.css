@@ -19,7 +19,7 @@ body, html {
     flex: 1;
     height: 100vh;
     background-color: #1a1a1a;
-    background-image: url('../img/fundo_login5.jpg'); /* Caminho corrigido */
+    background-image: url('/Website/img/fundo_login5.jpg'); /* Caminho corrigido */
     background-size: cover;
     background-position: center;
     color: white;
