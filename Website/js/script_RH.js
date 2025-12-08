@@ -11,7 +11,7 @@ let vagas = []
 
 async function carregarVagas() {
   try {
-    const resposta = await fetch("http://localhost:5000/vagas");
+    const resposta = await fetch("http://98.95.103.3:5000/vagas");
     if (!resposta.ok) throw new Error("Erro ao buscar vagas");
     vagas = await resposta.json();
     console.log("Vagas carregadas:", vagas);
@@ -25,7 +25,7 @@ let candidato_triagem = [];
 
 async function carregar_cadidato_triagem() {
   try {
-    const resposta = await fetch("http://localhost:5000/processo-seletivo");
+    const resposta = await fetch("http://98.95.103.3:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -92,7 +92,7 @@ function filterCardByStatus(containerId = 'vagaCard', dataAttribute = 'data-stat
 
 async function getVagaMetrics(vagaId) {
   try {
-    const response = await fetch(`http://localhost:5000/processo-seletivo/vaga/${vagaId}`);
+    const response = await fetch(`http://98.95.103.3:5000/processo-seletivo/vaga/${vagaId}`);
     if (!response.ok) throw new Error(`Erro HTTP: ${response.status}`);
     const candidatos = await response.json();
 
@@ -112,7 +112,7 @@ async function getVagaMetrics(vagaId) {
 
 async function aprovarVaga(id) {
   try {
-    const resposta = await fetch(`http://localhost:5000/vagas/${id}/aprovar`, {
+    const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id}/aprovar`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -142,7 +142,7 @@ async function loadContent(page) {
   fecharModalCustom();
 
   try {
-    const resposta = await fetch("http://localhost:5000/vagas");
+    const resposta = await fetch("http://98.95.103.3:5000/vagas");
     if (!resposta.ok) throw new Error(`Erro HTTP: ${resposta.status}`);
     vagas = await resposta.json();
     console.log("Vagas encontradas: ", vagas)
@@ -153,7 +153,7 @@ async function loadContent(page) {
   }
 
   try {
-    const resposta = await fetch("http://localhost:5000/processo-seletivo");
+    const resposta = await fetch("http://98.95.103.3:5000/processo-seletivo");
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos na triagem");
     candidato_triagem = await resposta.json();
     console.log("Candidatos na triagem carregados:", candidato_triagem);
@@ -375,7 +375,7 @@ async function listarCandidatosPorVaga(tituloVaga, idVaga) {
 
   try {
     // Faz a requisição ao endpoint Flask
-    const resposta = await fetch(`http://localhost:5000/processo-seletivo/vaga/${idVaga}`);
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/vaga/${idVaga}`);
     if (!resposta.ok) throw new Error("Erro ao buscar candidatos da vaga");
 
     const candidatosDaVaga = await resposta.json();
@@ -437,7 +437,7 @@ async function listarCandidatosPorVaga(tituloVaga, idVaga) {
 
 async function fecharVaga(idVaga) {
   try {
-    const response = await fetch(`http://localhost:5000/vagas/${idVaga}/fechar`, {
+    const response = await fetch(`http://98.95.103.3:5000/vagas/${idVaga}/fechar`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -654,7 +654,7 @@ async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   const observacoes = document.getElementById("modalObservacoes").value;
 
   try {
-    const resposta = await fetch(`http://localhost:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
@@ -763,7 +763,7 @@ function confirmarAprovacaoComDetalhes() {
 async function verDetalhesVagaGestor(id_vaga) {
   try {
     // Busca os dados da vaga direto do backend
-    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`);
+    const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id_vaga}`);
     if (!resposta.ok) throw new Error("Erro ao buscar detalhes da vaga");
 
     const v = await resposta.json();
@@ -908,7 +908,7 @@ async function salvarVagaRH(id_vaga) {
 
   try {
     // Chama o endpoint PUT
-    const resposta = await fetch(`http://localhost:5000/vagas/${id_vaga}`, {
+    const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id_vaga}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -981,7 +981,7 @@ function moverParaTalentos(id) {
 async function exibirCurriculo(idCandidato, rodarIA = false) {
   try {
     // 1. Busca os dados do candidato no backend
-    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/candidato/${idCandidato}`);
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/candidato/${idCandidato}`);
     if (!resposta.ok) throw new Error("Erro ao buscar dados do candidato");
     const candidatos = await resposta.json();
 
@@ -1142,7 +1142,7 @@ async function salvarAnaliseCurriculo(IdVaga, idCandidato, MatchScore) {
   //  🔥 NOVA PARTE: atualização do MatchScore no backend
   // ===============================
   try {
-    const resposta = await fetch(`http://127.0.0.1:5000/processo-seletivo/${IdVaga}/${idCandidato}/score`, {
+    const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${IdVaga}/${idCandidato}/score`, {
 
 
       method: "PUT",
@@ -1218,7 +1218,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // --- FUNÇÃO PARA COMUNICAR COM O BACKEND PYTHON/GEMINI (REINTEGRADA) ---
 async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
-  const apiURL = 'http://127.0.0.1:5001/api/match-score';
+  const apiURL = 'http://98.95.103.3:5001/api/match-score';
 
   try {
     // Caso venha como objeto (ex: vaga.skills)

@@ -3,7 +3,7 @@
 // =====================================================
 
 let chartInstance = null;
-const API_BASE = "http://localhost:5000/dashboard/rh";
+const API_BASE = "http://98.95.103.3:5000/dashboard/rh";
 
 // --- cache simples (por endpoint) ---
 const CACHE_TTL = 30_000; // 30s
