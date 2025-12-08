@@ -67,7 +67,7 @@ async function criar_vaga() {
     const resposta = await fetch("http://98.95.103.3:5000/vagas", {
       method: "POST",
       headers: {
-        "Content-Type": "application./json"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify(vaga)
     });
@@ -90,7 +90,7 @@ async function enviarVagaAPI(payload) {
   // NÃO altero backend; apenas espelho a chamada
   const resp = await fetch(`${API_BASE}/vagas`, {
     method: "POST",
-    headers: { "Content-Type": "application./json" },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
   if (!resp.ok) throw new Error(`Erro HTTP: ${resp.status}`);

@@ -476,7 +476,7 @@ async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   try {
     const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
-      headers: { "Content-Type": "application./json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
     });
 

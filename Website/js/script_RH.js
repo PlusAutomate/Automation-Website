@@ -115,7 +115,7 @@ async function aprovarVaga(id) {
     const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id}/aprovar`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application./json"
+        "Content-Type": "application/json"
       }
     });
 
@@ -440,7 +440,7 @@ async function fecharVaga(idVaga) {
     const response = await fetch(`http://98.95.103.3:5000/vagas/${idVaga}/fechar`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application./json"
+        "Content-Type": "application/json"
       }
     });
 
@@ -656,7 +656,7 @@ async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   try {
     const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
-      headers: { "Content-Type": "application./json" },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
     });
 
@@ -911,7 +911,7 @@ async function salvarVagaRH(id_vaga) {
     const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id_vaga}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application./json'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(dadosAtualizados)
     });
@@ -1147,7 +1147,7 @@ async function salvarAnaliseCurriculo(IdVaga, idCandidato, MatchScore) {
 
       method: "PUT",
       headers: {
-        "Content-Type": "application./json"
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         matchScore: MatchScore
@@ -1242,7 +1242,7 @@ async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
 
     const response = await fetch(apiURL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application./json' },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         skills: cleanCandidatoSkills,
         requisitos: cleanVagaRequisitos,

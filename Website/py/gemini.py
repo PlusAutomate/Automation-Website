@@ -69,7 +69,7 @@ def get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga):
             model='gemini-2.5-flash',
             contents=prompt,
             config=genai.types.GenerateContentConfig(
-                response_mime_type="application./json",
+                response_mime_type="application/json",
             ),
         )
 
