@@ -115,7 +115,7 @@ async function aprovarVaga(id) {
     const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id}/aprovar`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application./json"
       }
     });
 
@@ -186,7 +186,7 @@ async function loadContent(page) {
               </p>` : ""}
           </div>
           <div class="action-icons">
-            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
+            <img title="Ver detalhes da vaga" onclick="verDetalhesVagaGestor(${v.id_vaga})" class="icon-cards" src="./img/inspecionar-icon.png" alt="">
             ${v.status === 'Aberta' && temCandidatos ?
           `<button class="btn-ghost" title="Fechar Vaga" style="background:#da4b59ff; color:white; border-color:#007bff; margin-left: 10px;" onclick="fecharVaga(${v.id_vaga})">
                 Fechar Vaga
@@ -276,9 +276,9 @@ async function loadContent(page) {
                 <p><strong>Contato:</strong> ${c.email}</p>
               </div>
               <div class="action-icons">
-                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="../img/inspecionar-icon.png" alt="">
-                  <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="../img/mover-icon.png" alt="">
-                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="../img/lixo-icon.png" alt="">
+                  <img title="Exibir curriculo" onclick="exibirCurriculo(${c.id_candidato})" class="icon-cards" src="./img/inspecionar-icon.png" alt="">
+                  <img title="Mover para talentos" onclick="moverParaTalentos(${c.id_curriculo})" class="icon-cards" src="./img/mover-icon.png" alt="">
+                  <img title="Excluir candidato" onclick="deletarCurriculo(${c.id_curriculo})" class="icon-cards" src="./img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("")}
@@ -343,8 +343,8 @@ async function loadContent(page) {
                 <p><strong>Origem:</strong> ${t.origem}</p>
               </div>
               <div class="action-icons">
-               <img title="Exibir curriculo" onclick="exibirTalento(${t.id})" class="icon-cards" src="../img/inspecionar-icon.png" alt=">
-               <img title="Excluir candidato" onclick="deletarTalento(${t.id})" class="icon-cards" src="../img/lixo-icon.png" alt="">
+               <img title="Exibir curriculo" onclick="exibirTalento(${t.id})" class="icon-cards" src="./img/inspecionar-icon.png" alt=">
+               <img title="Excluir candidato" onclick="deletarTalento(${t.id})" class="icon-cards" src="./img/lixo-icon.png" alt="">
               </div>
             </div>
           `).join("") : `<div style="text-align:center; padding:20px;">Nenhum talento no banco.</div>`}
@@ -440,7 +440,7 @@ async function fecharVaga(idVaga) {
     const response = await fetch(`http://98.95.103.3:5000/vagas/${idVaga}/fechar`, {
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application./json"
       }
     });
 
@@ -656,7 +656,7 @@ async function confirmarMudarStatus(idCandidato, idVaga, tituloVaga) {
   try {
     const resposta = await fetch(`http://98.95.103.3:5000/processo-seletivo/${idVaga}/${idCandidato}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application./json" },
       body: JSON.stringify({ status: novoStatus, observacoes })
     });
 
@@ -911,7 +911,7 @@ async function salvarVagaRH(id_vaga) {
     const resposta = await fetch(`http://98.95.103.3:5000/vagas/${id_vaga}`, {
       method: 'PUT',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application./json'
       },
       body: JSON.stringify(dadosAtualizados)
     });
@@ -1147,7 +1147,7 @@ async function salvarAnaliseCurriculo(IdVaga, idCandidato, MatchScore) {
 
       method: "PUT",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application./json"
       },
       body: JSON.stringify({
         matchScore: MatchScore
@@ -1242,7 +1242,7 @@ async function fetchMatchScoreIA(candidatoSkills, vagaRequisitos, nomeVaga) {
 
     const response = await fetch(apiURL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application./json' },
       body: JSON.stringify({
         skills: cleanCandidatoSkills,
         requisitos: cleanVagaRequisitos,

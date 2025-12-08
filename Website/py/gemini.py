@@ -9,7 +9,8 @@ import json
 
 app = Flask(__name__)
 
-# ✅ Libera CORS para QUALQUER origem (portas dinâmicas, 98.95.103.3, 98.95.103.3 etc.)
+# ✅ Libera CORS para QUALQUER origem (portas dinâmicas, localhost, 98.95.103.3 etc.)
+
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # 🔧 Garante que até respostas OPTIONS (preflight) incluam os cabeçalhos
@@ -68,7 +69,7 @@ def get_match_analysis(candidato_skills, vaga_requisitos, nome_vaga):
             model='gemini-2.5-flash',
             contents=prompt,
             config=genai.types.GenerateContentConfig(
-                response_mime_type="application/json",
+                response_mime_type="application./json",
             ),
         )
 
