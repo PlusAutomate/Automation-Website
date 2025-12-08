@@ -56,7 +56,7 @@
     </div>
 </body>
 
-<./html>
+<html>
 
 <script>
     async function logarRH() {
@@ -86,7 +86,7 @@
 
 
                 showPopup('LOGIN FEITO COM SUCESSO!', 'Vamos preencher essas vagas!', 'success', () => {
-                    window.location.href = "./html/dashboard_RH.html";
+                    window.location.href = "html/dashboard_RH.html";
                 });
             } else if (resposta.status === 400) {
                 showPopup('ERRO NO LOGIN!', '(Campos de email e senha são obrigatórios)', 'error');
@@ -128,7 +128,7 @@
 
 
                 showPopup('LOGIN FEITO COM SUCESSO!', 'Vamos preencher essas vagas!', 'success', () => {
-                    window.location.href = "./html/dashboard_GE.html";
+                    window.location.href = "html/dashboard_GE.html";
                 });
             } else if (resposta.status === 400) {
                 showPopup('ERRO NO LOGIN!', '(Campos de email e senha são obrigatórios)', 'error');
